@@ -10,5 +10,7 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/piloos/power-bi'
   s.license     = 'MIT'
 
-  s.add_dependency 'faraday', '~> 1.0'
+  s.add_runtime_dependency 'faraday', '~> 1.0'
+
+  s.add_development_dependency 'webmock'
 end

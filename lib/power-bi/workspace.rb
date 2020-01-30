@@ -1,0 +1,23 @@
+module PowerBI
+  class Workspace
+    attr_reader :name, :is_read_only, :is_on_dedicated_capacity, :id
+
+    def initialize(tenant, data)
+      @id = data[:id]
+      @is_read_only = data[:isReadOnly]
+      @is_on_dedicated_capacity = data[:isOnDedicatedCapacity]
+      @name = data[:name]
+      @tentant = tenant
+    end
+  end
+
+  class WorkspaceArray < Array
+    def self.get_class
+      Workspace
+    end
+
+    def get_data
+      @tenant.get(PowerBI::BASE_URL + "/groups")
+    end
+  end
+end
