@@ -10,13 +10,30 @@ module PowerBI
     end
 
     def get(url, params = {})
-      response = Faraday.get(url) do |req|
+      response = Faraday.get(PowerBI::BASE_URL + url) do |req|
         req.params = params
         req.headers['Accept'] = 'application/json'
         req.headers['authorization'] = "Bearer #{token}"
         yield req if block_given?
       end
-      JSON.parse(response.body, symbolize_names: true)[:value]
+      if response.status != 200
+        raise APIError.new("Error calling Power BI API: #{response.body}")
+      end
+      JSON.parse(response.body, symbolize_names: true)
+    end
+
+    def post(url, params = {})
+      response = Faraday.post(PowerBI::BASE_URL + url) do |req|
+        req.params = params
+        req.headers['Accept'] = 'application/json'
+        req.headers['Content-Type'] = 'application/json'
+        req.headers['authorization'] = "Bearer #{token}"
+        yield req if block_given?
+      end
+      if response.status != 200
+        raise APIError.new("Error calling Power BI API: #{response.body}")
+      end
+      JSON.parse(response.body, symbolize_names: true)
     end
 
     private

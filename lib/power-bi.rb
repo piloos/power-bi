@@ -4,6 +4,9 @@ require 'json'
 
 module PowerBI
   BASE_URL = 'https://api.powerbi.com/v1.0/myorg'
+
+  class Error < StandardError ; end
+  class APIError < Error ; end
 end
 
 require_relative "power-bi/tenant"

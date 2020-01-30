@@ -66,5 +66,31 @@ module PowerBI
       end
 
     end
+
+    describe "creating workspaces" do
+
+      before do
+        @tenant = Tenant.new(->{dummy_token})
+      end
+
+      it "can create a workspace" do
+        stub_request(:post, "https://api.powerbi.com/v1.0/myorg/groups?workspaceV2=True").
+        with(body: "{\"name\":\"TheNewWS\"}").
+        to_return(status: 200, body: "{\r\n  \"@odata.context\":\"http://wabi-west-europe-d-primary-redirect.analysis.windows.net/v1.0/myorg/$metadata#groups/$entity\",\"id\":\"9c8e8340-fe66-4dbb-865a-d4ca7ce205e6\",\"isReadOnly\":false,\"isOnDedicatedCapacity\":false,\"name\":\"TheNewWS\"\r\n}", headers: {})
+        ws = @tenant.workspaces.create('TheNewWS')
+        assert ws.is_a? Workspace
+      end
+
+      it "raise an error when creating an already existing workspace" do
+        stub_request(:post, "https://api.powerbi.com/v1.0/myorg/groups?workspaceV2=True").
+        with(body: "{\"name\":\"TheNewWS\"}").
+        to_return(status: 400, body: "{\"error\":{\"code\":\"PowerBIEntityAlreadyExists\",\"pbi.error\":{\"code\":\"PowerBIEntityAlreadyExists\",\"parameters\":{},\"details\":[]}}}", headers: {})
+
+        assert_raises APIError do
+          @tenant.workspaces.create('TheNewWS')
+        end
+      end
+
+    end
   end
 end

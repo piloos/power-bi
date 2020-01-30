@@ -16,8 +16,16 @@ module PowerBI
       Workspace
     end
 
+    def create(name)
+      data = @tenant.post("/groups", {workspaceV2: 'True'}) do |req|
+        req.body = {name: name}.to_json
+      end
+      self.reload
+      Workspace.new(@tenant, data)
+    end
+
     def get_data
-      @tenant.get(PowerBI::BASE_URL + "/groups")
+      @tenant.get("/groups")[:value]
     end
   end
 end
