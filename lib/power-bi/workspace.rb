@@ -13,6 +13,10 @@ module PowerBI
     def reports
       @reports ||= ReportArray.new(@tenant, self)
     end
+
+    def datasets
+      @datasets ||= DatasetArray.new(@tenant, self)
+    end
   end
 
   class WorkspaceArray < Array
