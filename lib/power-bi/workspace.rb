@@ -7,7 +7,11 @@ module PowerBI
       @is_read_only = data[:isReadOnly]
       @is_on_dedicated_capacity = data[:isOnDedicatedCapacity]
       @name = data[:name]
-      @tentant = tenant
+      @tenant = tenant
+    end
+
+    def reports
+      @reports ||= ReportArray.new(@tenant, self)
     end
   end
 
