@@ -1,6 +1,6 @@
 module PowerBI
   class Report
-    attr_reader :name, :id, :report_type, :web_url, :embed_url, :is_from_pbix, :is_owned_by_me, :dataset_id
+    attr_reader :name, :id, :report_type, :web_url, :embed_url, :is_from_pbix, :is_owned_by_me, :dataset_id, :workspace
 
     def initialize(tenant, data)
       @id = data[:id]
