@@ -17,7 +17,7 @@ module PowerBI
         yield req if block_given?
       end
       if response.status != 200
-        raise APIError.new("Error calling Power BI API: #{response.body}")
+        raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
       JSON.parse(response.body, symbolize_names: true)
     end
@@ -31,7 +31,7 @@ module PowerBI
         yield req if block_given?
       end
       if response.status != 200
-        raise APIError.new("Error calling Power BI API: #{response.body}")
+        raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
       JSON.parse(response.body, symbolize_names: true)
     end

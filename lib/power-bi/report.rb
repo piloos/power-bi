@@ -15,6 +15,18 @@ module PowerBI
       @tenant = tenant
     end
 
+    def clone(target_workspace, new_report_name)
+      data = @tenant.post("/reports/#{@id}/Clone") do |req|
+        req.body = {
+          name: new_report_name,
+          targetWorkspaceId: target_workspace.id
+        }.to_json
+      end
+      target_workspace.reports.reload
+      data[:workspace] = target_workspace
+      Report.new(@tenant, data)
+    end
+
   end
 
   class ReportArray < Array
