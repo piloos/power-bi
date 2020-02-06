@@ -2,6 +2,8 @@ module PowerBI
   class Workspace
     attr_reader :name, :is_read_only, :is_on_dedicated_capacity, :id
 
+    class UploadError < PowerBI::Error ; end
+
     def initialize(tenant, data)
       @id = data[:id]
       @is_read_only = data[:isReadOnly]
@@ -16,6 +18,21 @@ module PowerBI
 
     def datasets
       @datasets ||= DatasetArray.new(@tenant, self)
+    end
+
+    def upload_pbix(file, dataset_name)
+      data = @tenant.post_file("/groups/#{@id}/imports", file, {datasetDisplayName: dataset_name})
+      import_id = data[:id]
+      success = false
+      iterations = 0
+      while !success
+        sleep 0.1
+        iterations += 1
+        raise UploadError if iterations > 300 # 30 seconds
+        status = @tenant.get("/groups/#{@id}/imports/#{import_id}")
+        success = (status[:importState] == "Succeeded")
+      end
+      true
     end
   end
 

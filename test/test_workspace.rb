@@ -92,5 +92,23 @@ module PowerBI
       end
 
     end
+
+    describe "upload pbix" do
+
+      before do
+        @tenant = Tenant.new(->{dummy_token})
+        @ws = Workspace.new(@tenant, {id: 7})
+      end
+
+      it "possible to upload pbix" do
+        stub_request(:post, "https://api.powerbi.com/v1.0/myorg/groups/7/imports?datasetDisplayName=newstuff").to_return(status: 202, body: "{\"id\": \"d02b8896-e247-4d83-ae5a-014028cb0665\"}")
+        stub_request(:get, "https://api.powerbi.com/v1.0/myorg/groups/7/imports/d02b8896-e247-4d83-ae5a-014028cb0665").
+          to_return(status: 200, body: "{\r\n  \"@odata.context\":\"http://api.powerbi.com/v1.0/myorg/groups/ba4084ce-0fc6-47f1-864a-d5b1a0df970a/$metadata#imports/$entity\",\"id\":\"9442dde0-e1e2-477d-b7a3-a922684227d0\",\"importState\":\"Publishing\",\"createdDateTime\":\"2020-02-08T06:02:44.883Z\",\"updatedDateTime\":\"2020-02-08T06:02:44.883Z\",\"name\":\"uploaded_stuff\",\"connectionType\":\"import\",\"source\":\"Upload\",\"datasets\":[\r\n    \r\n  ],\"reports\":[\r\n    \r\n  ]\r\n}").
+          to_return(status: 200, body: "{\r\n  \"@odata.context\":\"http://api.powerbi.com/v1.0/myorg/groups/ba4084ce-0fc6-47f1-864a-d5b1a0df970a/$metadata#imports/$entity\",\"id\":\"9442dde0-e1e2-477d-b7a3-a922684227d0\",\"importState\":\"Succeeded\",\"createdDateTime\":\"2020-02-08T06:02:44.883Z\",\"updatedDateTime\":\"2020-02-08T06:02:44.883Z\",\"name\":\"uploaded_stuff\",\"connectionType\":\"import\",\"source\":\"Upload\",\"datasets\":[\r\n    {\r\n      \"id\":\"ed063b93-15b6-4b54-b8aa-f2f2bfc5c83c\",\"name\":\"uploaded_stuff\",\"webUrl\":\"https://app.powerbi.com/groups/ba4084ce-0fc6-47f1-864a-d5b1a0df970a/datasets/ed063b93-15b6-4b54-b8aa-f2f2bfc5c83c\",\"targetStorageMode\":\"Unknown\"\r\n    }\r\n  ],\"reports\":[\r\n    {\r\n      \"id\":\"624fc545-c344-4146-bb82-f4d4d9a91a79\",\"reportType\":\"PowerBIReport\",\"name\":\"uploaded_stuff\",\"webUrl\":\"https://app.powerbi.com/groups/ba4084ce-0fc6-47f1-864a-d5b1a0df970a/reports/624fc545-c344-4146-bb82-f4d4d9a91a79\",\"embedUrl\":\"https://app.powerbi.com/reportEmbed?reportId=624fc545-c344-4146-bb82-f4d4d9a91a79&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLVdFU1QtRVVST1BFLUQtUFJJTUFSWS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldCJ9\"\r\n    }\r\n  ]\r\n}")
+        result = @ws.upload_pbix('./zoo_from_sharepoint.pbix', 'newstuff')
+        assert result
+      end
+
+    end
   end
 end
