@@ -1,6 +1,6 @@
 module PowerBI
   class Workspace
-    attr_reader :name, :is_read_only, :is_on_dedicated_capacity, :id
+    attr_reader :name, :is_read_only, :is_on_dedicated_capacity, :id, :reports, :datasets
 
     class UploadError < PowerBI::Error ; end
 
@@ -10,14 +10,8 @@ module PowerBI
       @is_on_dedicated_capacity = data[:isOnDedicatedCapacity]
       @name = data[:name]
       @tenant = tenant
-    end
-
-    def reports
-      @reports ||= ReportArray.new(@tenant, self)
-    end
-
-    def datasets
-      @datasets ||= DatasetArray.new(@tenant, self)
+      @reports = ReportArray.new(@tenant, self)
+      @datasets = DatasetArray.new(@tenant, self)
     end
 
     def upload_pbix(file, dataset_name)
@@ -32,8 +26,11 @@ module PowerBI
         status = @tenant.get("/groups/#{@id}/imports/#{import_id}")
         success = (status[:importState] == "Succeeded")
       end
+      @reports.reload
+      @datasets.reload
       true
     end
+
   end
 
   class WorkspaceArray < Array

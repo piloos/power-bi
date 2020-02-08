@@ -1,12 +1,10 @@
 module PowerBI
   class Tenant
+    attr_reader :workspaces
 
     def initialize(token_generator)
       @token_generator = token_generator
-    end
-
-    def workspaces
-      @workspaces ||= WorkspaceArray.new(self)
+      @workspaces = WorkspaceArray.new(self)
     end
 
     def get(url, params = {})
