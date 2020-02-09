@@ -1,7 +1,8 @@
 module PowerBI
   class Dataset
     attr_reader :id, :name, :add_rows_API_enabled, :configured_by, :is_refreshable, :is_effective_identity_required,
-      :is_effective_identity_roles_required, :is_on_prem_gateway_required, :target_storage_mode, :workspace, :datasources
+      :is_effective_identity_roles_required, :is_on_prem_gateway_required, :target_storage_mode, :workspace, :datasources,
+      :parameters
 
     def initialize(tenant, data)
       @id = data[:id]
@@ -16,6 +17,7 @@ module PowerBI
       @workspace = data[:workspace]
       @tenant = tenant
       @datasources = DatasourceArray.new(@tenant, self)
+      @parameters = ParameterArray.new(@tenant, self)
     end
 
   end
