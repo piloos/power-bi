@@ -17,7 +17,9 @@ module PowerBI
       if response.status != 200
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
-      JSON.parse(response.body, symbolize_names: true)
+      unless response.body.empty?
+        JSON.parse(response.body, symbolize_names: true)
+      end
     end
 
     def post(url, params = {})
@@ -31,7 +33,9 @@ module PowerBI
       if response.status != 200
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
-      JSON.parse(response.body, symbolize_names: true)
+      unless response.body.empty?
+        JSON.parse(response.body, symbolize_names: true)
+      end
     end
 
     def post_file(url, file, params = {})

@@ -20,6 +20,16 @@ module PowerBI
       @parameters = ParameterArray.new(@tenant, self)
     end
 
+    def update_parameter(name, value)
+      data = @tenant.post("/groups/#{workspace.id}/datasets/#{id}/Default.UpdateParameters") do |req|
+        req.body = {
+          updateDetails: [{name: name, newValue: value.to_s}]
+        }.to_json
+      end
+      @parameters.reload
+      true
+    end
+
   end
 
   class DatasetArray < Array
