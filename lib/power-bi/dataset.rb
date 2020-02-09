@@ -21,12 +21,22 @@ module PowerBI
     end
 
     def update_parameter(name, value)
-      data = @tenant.post("/groups/#{workspace.id}/datasets/#{id}/Default.UpdateParameters") do |req|
+      @tenant.post("/groups/#{workspace.id}/datasets/#{id}/Default.UpdateParameters") do |req|
         req.body = {
           updateDetails: [{name: name, newValue: value.to_s}]
         }.to_json
       end
       @parameters.reload
+      true
+    end
+
+
+    def refresh
+      @tenant.post("/groups/#{workspace.id}/datasets/#{id}/refreshes") do |req|
+        req.body = {
+          notifyOption: "NoNotification"
+        }.to_json
+      end
       true
     end
 
