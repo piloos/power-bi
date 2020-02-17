@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'power-bi'
-  s.version     = '0.1.0'
+  s.version     = '0.2.0'
   s.date        = '2020-01-27'
   s.summary     = "Ruby wrapper for the Power BI API"
   s.description = "Ruby wrapper for the Power BI API - Currently supports workspaces"

@@ -1,4 +1,4 @@
-require_relative './lib/power-bi'
+require_relative '../lib/power-bi'
 
 require 'pry'
 require 'oauth2'
@@ -34,9 +34,11 @@ puts workspaces.length
 
 # datasets = workspaces[0].datasets
 
-# zoo1 = workspaces.find{ |ws| ws.name == 'Zoo1'}
+zoo1 = workspaces.find{ |ws| ws.name == 'Zoo1'}
 # zoo2 = workspaces.find{ |ws| ws.name == 'Zoo2'}
 # zoo3 = workspaces.find{ |ws| ws.name == 'Zoo3'}
+
+# puts zoo1.reports.length
 
 # original_report = zoo1.reports.find { |r| r.name == 'zoo_from_sharepoint'}
 # cloned_report = original_report.clone(zoo2, 'zoo2_from_sharepoint')
@@ -56,6 +58,11 @@ puts workspaces.length
 # dataset.update_parameter('folder', 'zoo3')
 
 # p dataset.parameters.map { |p| [p.name, p.current_value]}
+
+report = zoo1.reports.find { |r| r.name == 'zoo_from_sharepoint_report2' }
+target_dataset = zoo1.datasets.find { |d| d.name == 'zoo_from_sharepoint' }
+
+report.rebind(target_dataset)
 
 # dataset.refresh
 
