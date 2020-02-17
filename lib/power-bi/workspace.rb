@@ -31,6 +31,17 @@ module PowerBI
       true
     end
 
+    # TODO LATER: the 'Viewer' acces right is currently not settable throught the API. Fix that later
+    def add_user(email_address, access_right = 'Member')
+      @tenant.post("/groups/#{id}/users") do |req|
+        req.body = {
+          emailAddress: email_address,
+          groupUserAccessRight: access_right
+        }.to_json
+      end
+      true
+    end
+
   end
 
   class WorkspaceArray < Array

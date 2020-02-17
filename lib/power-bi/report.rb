@@ -28,7 +28,7 @@ module PowerBI
     end
 
     def rebind(target_dataset)
-      data = @tenant.post("/groups/#{workspace.id}/reports/#{id}/Rebind") do |req|
+      @tenant.post("/groups/#{workspace.id}/reports/#{id}/Rebind") do |req|
         req.body = {
           datasetId: target_dataset.id
         }.to_json

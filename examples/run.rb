@@ -59,11 +59,12 @@ zoo1 = workspaces.find{ |ws| ws.name == 'Zoo1'}
 
 # p dataset.parameters.map { |p| [p.name, p.current_value]}
 
-report = zoo1.reports.find { |r| r.name == 'zoo_from_sharepoint_report2' }
-target_dataset = zoo1.datasets.find { |d| d.name == 'zoo_from_sharepoint' }
-
-report.rebind(target_dataset)
+# report = zoo1.reports.find { |r| r.name == 'zoo_from_sharepoint_report2' }
+# target_dataset = zoo1.datasets.find { |d| d.name == 'zoo_from_sharepoint' }
+# report.rebind(target_dataset)
 
 # dataset.refresh
+
+zoo1.add_user('company_0001@bizzcontrol.com')
 
 puts "end of story"
