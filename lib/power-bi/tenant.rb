@@ -38,6 +38,21 @@ module PowerBI
       end
     end
 
+    def delete(url, params = {})
+      response = Faraday.delete(PowerBI::BASE_URL + url) do |req|
+        req.params = params
+        req.headers['Accept'] = 'application/json'
+        req.headers['authorization'] = "Bearer #{token}"
+        yield req if block_given?
+      end
+      unless [200, 202].include? response.status
+        raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
+      end
+      unless response.body.empty?
+        JSON.parse(response.body, symbolize_names: true)
+      end
+    end
+
     def post_file(url, file, params = {})
       conn = Faraday.new do |f|
         f.request :multipart

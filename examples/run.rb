@@ -34,9 +34,9 @@ puts workspaces.length
 
 # datasets = workspaces[0].datasets
 
-zoo1 = workspaces.find{ |ws| ws.name == 'Zoo1'}
+# zoo1 = workspaces.find{ |ws| ws.name == 'Zoo1'}
 # zoo2 = workspaces.find{ |ws| ws.name == 'Zoo2'}
-# zoo3 = workspaces.find{ |ws| ws.name == 'Zoo3'}
+zoo3 = workspaces.find{ |ws| ws.name == 'Zoo3'}
 
 # puts zoo1.reports.length
 
@@ -65,6 +65,10 @@ zoo1 = workspaces.find{ |ws| ws.name == 'Zoo1'}
 
 # dataset.refresh
 
-zoo1.add_user('company_0001@bizzcontrol.com')
+# zoo1.datasets.each { |d| d.refresh }
+
+# zoo1.add_user('company_0001@bizzcontrol.com')
+
+zoo3.datasets.first.delete
 
 puts "end of story"

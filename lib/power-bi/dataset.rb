@@ -40,6 +40,11 @@ module PowerBI
       true
     end
 
+    def delete
+      @tenant.delete("/groups/#{workspace.id}/datasets/#{id}")
+      true
+    end
+
   end
 
   class DatasetArray < Array
