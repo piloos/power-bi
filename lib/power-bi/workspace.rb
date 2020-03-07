@@ -31,6 +31,12 @@ module PowerBI
       true
     end
 
+    def delete
+      @tenant.delete("/groups/#{@id}")
+      @tenant.workspaces.reload
+      true
+    end
+
     # TODO LATER: the 'Viewer' acces right is currently not settable throught the API. Fix that later
     def add_user(email_address, access_right = 'Member')
       @tenant.post("/groups/#{id}/users") do |req|
