@@ -2,7 +2,7 @@ module PowerBI
   class Dataset
     attr_reader :id, :name, :add_rows_API_enabled, :configured_by, :is_refreshable, :is_effective_identity_required,
       :is_effective_identity_roles_required, :is_on_prem_gateway_required, :target_storage_mode, :workspace, :datasources,
-      :parameters
+      :parameters, :refresh_history
 
     def initialize(tenant, data)
       @id = data[:id]
@@ -18,6 +18,7 @@ module PowerBI
       @tenant = tenant
       @datasources = DatasourceArray.new(@tenant, self)
       @parameters = ParameterArray.new(@tenant, self)
+      @refresh_history = RefreshArray.new(@tenant, self)
     end
 
     def update_parameter(name, value)
@@ -30,6 +31,9 @@ module PowerBI
       true
     end
 
+    def last_refresh
+      @refresh_history.first
+    end
 
     def refresh
       @tenant.post("/groups/#{workspace.id}/datasets/#{id}/refreshes") do |req|
@@ -37,6 +41,7 @@ module PowerBI
           notifyOption: "NoNotification"
         }.to_json
       end
+      @refresh_history.reload
       true
     end
 

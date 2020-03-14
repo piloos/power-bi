@@ -28,7 +28,7 @@ workspaces = pbi.workspaces
 
 puts workspaces.length
 
-# workspaces.create('Zoo6')
+# workspaces.create('Zoo7')
 
 # reports = workspaces[0].reports
 
@@ -36,7 +36,8 @@ puts workspaces.length
 
 # zoo1 = workspaces.find{ |ws| ws.name == 'Zoo1'}
 # zoo2 = workspaces.find{ |ws| ws.name == 'Zoo2'}
-zoo6 = workspaces.find{ |ws| ws.name == 'Zoo6'}
+# zoo6 = workspaces.find{ |ws| ws.name == 'Zoo6'}
+zoo7 = workspaces.find{ |ws| ws.name == 'Zoo7'}
 
 # puts zoo1.reports.length
 
@@ -50,7 +51,7 @@ zoo6 = workspaces.find{ |ws| ws.name == 'Zoo6'}
 
 # puts datasources.length
 
-# zoo3.upload_pbix('./zoo_from_sharepoint.pbix', 'uploaded_stuff')
+# zoo7.upload_pbix('./examples/zoo_from_sharepoint.pbix', 'uploaded_stuff')
 # dataset = zoo3.datasets.first
 
 # p dataset.parameters.map { |p| [p.name, p.current_value]}
@@ -71,6 +72,16 @@ zoo6 = workspaces.find{ |ws| ws.name == 'Zoo6'}
 
 # zoo3.datasets.first.delete
 
-zoo6.delete
+# zoo6.delete
+
+dses = zoo7.datasets
+
+dses.each do |ds|
+  refreshes = ds.refresh_history
+  p refreshes.map { |r| [r.status, r.start_time, r.end_time] }
+  p ds.last_refresh
+end
+# ds.refresh
+# p refreshes.map { |r| [r.status, r.start_time, r.end_time] }
 
 puts "end of story"
