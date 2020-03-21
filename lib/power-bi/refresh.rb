@@ -6,7 +6,7 @@ module PowerBI
       @id = data[:id]
       @refresh_type = data[:refreshType]
       @start_time = DateTime.iso8601(data[:startTime])
-      @end_time = DateTime.iso8601(data[:endTime])
+      @end_time = DateTime.iso8601(data[:endTime]) if data[:endTime]
       @service_exception_json = data[:serviceExceptionJson]
       @status = data[:status]
       @request_id = data[:requestId]
