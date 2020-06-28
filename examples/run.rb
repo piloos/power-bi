@@ -74,14 +74,18 @@ zoo7 = workspaces.find{ |ws| ws.name == 'Zoo7'}
 
 # zoo6.delete
 
-dses = zoo7.datasets
+# dses = zoo7.datasets
 
-dses.each do |ds|
-  refreshes = ds.refresh_history
-  p refreshes.map { |r| [r.status, r.start_time, r.end_time] }
-  p ds.last_refresh
-end
+# dses.each do |ds|
+#   refreshes = ds.refresh_history
+#   p refreshes.map { |r| [r.status, r.start_time, r.end_time] }
+#   p ds.last_refresh
+# end
 # ds.refresh
 # p refreshes.map { |r| [r.status, r.start_time, r.end_time] }
+
+report = zoo7.reports.first
+
+report.export_to_file
 
 puts "end of story"

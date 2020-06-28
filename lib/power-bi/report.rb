@@ -36,6 +36,14 @@ module PowerBI
       true
     end
 
+    def export_to_file(format: 'PDF')
+      @tenant.post("/groups/#{workspace.id}/reports/#{id}/ExportTo") do |req|
+        req.body = {
+          format: format
+        }.to_json
+      end
+    end
+
   end
 
   class ReportArray < Array
