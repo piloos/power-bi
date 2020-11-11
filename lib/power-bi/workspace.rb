@@ -14,17 +14,23 @@ module PowerBI
       @datasets = DatasetArray.new(@tenant, self)
     end
 
-    def upload_pbix(file, dataset_name)
+    def upload_pbix(file, dataset_name, timeout: 30)
       data = @tenant.post_file("/groups/#{@id}/imports", file, {datasetDisplayName: dataset_name})
       import_id = data[:id]
       success = false
       iterations = 0
+      status_history = ''
+      old_status = ''
       while !success
         sleep 0.1
         iterations += 1
-        raise UploadError if iterations > 300 # 30 seconds
-        status = @tenant.get("/groups/#{@id}/imports/#{import_id}")
-        success = (status[:importState] == "Succeeded")
+        raise UploadError.new("Upload did not succeed after #{timeout} seconds. Status history:#{status_history}") if iterations > (10 * timeout)
+        new_status = @tenant.get("/groups/#{@id}/imports/#{import_id}")[:importState].to_s
+        success = (new_status == "Succeeded")
+        if new_status != old_status
+          status_history += "\nStatus change after #{iterations/10.0}s: '#{old_status}' --> '#{new_status}'"
+          old_status = new_status
+        end
       end
       @reports.reload
       @datasets.reload
