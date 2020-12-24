@@ -2,6 +2,8 @@ module PowerBI
   class Report
     attr_reader :name, :id, :report_type, :web_url, :embed_url, :is_from_pbix, :is_owned_by_me, :dataset_id, :workspace
 
+    class ExportToFileError < PowerBI::Error ; end
+
     def initialize(tenant, data)
       @id = data[:id]
       @report_type = data[:reportType]
@@ -36,12 +38,35 @@ module PowerBI
       true
     end
 
-    def export_to_file(format: 'PDF')
-      @tenant.post("/groups/#{workspace.id}/reports/#{id}/ExportTo") do |req|
+    def export_to_file(filename, format: 'PDF', timeout: 300)
+      # post
+      data = @tenant.post("/groups/#{workspace.id}/reports/#{id}/ExportTo") do |req|
         req.body = {
           format: format
         }.to_json
       end
+      export_id = data[:id]
+
+      # poll
+      success = false
+      iterations = 0
+      status_history = ''
+      old_status = ''
+      while !success
+        sleep 0.1
+        iterations += 1
+        raise ExportToFileError.new("Report export to file did not succeed after #{timeout} seconds. Status history:#{status_history}") if iterations > (10 * timeout)
+        new_status = @tenant.get("/groups/#{workspace.id}/reports/#{id}/exports/#{export_id}")[:status].to_s
+        success = (new_status == "Succeeded")
+        if new_status != old_status
+          status_history += "\nStatus change after #{iterations/10.0}s: '#{old_status}' --> '#{new_status}'"
+          old_status = new_status
+        end
+      end
+
+      # get and write file
+      data = @tenant.get_raw("/groups/#{workspace.id}/reports/#{id}/exports/#{export_id}/file")
+      File.open(filename, "wb") { |f| f.write(data) }
     end
 
   end

@@ -37,7 +37,9 @@ puts workspaces.length
 # zoo1 = workspaces.find{ |ws| ws.name == 'Zoo1'}
 # zoo2 = workspaces.find{ |ws| ws.name == 'Zoo2'}
 # zoo6 = workspaces.find{ |ws| ws.name == 'Zoo6'}
-zoo7 = workspaces.find{ |ws| ws.name == 'Zoo7'}
+# zoo7 = workspaces.find{ |ws| ws.name == 'Zoo7'}
+
+pr = workspaces.find{ |ws| ws.name == 'paginated_reports'}
 
 # puts zoo1.reports.length
 
@@ -84,8 +86,8 @@ zoo7 = workspaces.find{ |ws| ws.name == 'Zoo7'}
 # ds.refresh
 # p refreshes.map { |r| [r.status, r.start_time, r.end_time] }
 
-report = zoo7.reports.first
+report = pr.reports.first
 
-report.export_to_file
+report.export_to_file 'myexport.pdf'
 
 puts "end of story"

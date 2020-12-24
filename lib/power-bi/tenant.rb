@@ -14,12 +14,24 @@ module PowerBI
         req.headers['authorization'] = "Bearer #{token}"
         yield req if block_given?
       end
-      if response.status != 200
+      unless [200, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
       unless response.body.empty?
         JSON.parse(response.body, symbolize_names: true)
       end
+    end
+
+    def get_raw(url, params = {})
+      response = Faraday.get(PowerBI::BASE_URL + url) do |req|
+        req.params = params
+        req.headers['authorization'] = "Bearer #{token}"
+        yield req if block_given?
+      end
+      unless [200, 202].include? response.status
+        raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
+      end
+      response.body
     end
 
     def post(url, params = {})
