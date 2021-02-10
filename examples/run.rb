@@ -29,6 +29,16 @@ gateways = pbi.gateways
 
 gateways.each do |gateway|
   puts "gateway #{gateway.name} (#{gateway.id}) - type #{gateway.type}"
+
+  datasources = gateway.gateway_datasources
+
+  puts " * contains #{datasources.length} gateway_datasources"
+
+  datasources.each do |ds|
+    puts "   * datasource #{ds.id} - type #{ds.datasource_type} on gateway #{ds.gateway_id}"
+    puts "     name #{ds.datasource_name}, credential type #{ds.credential_type}"
+    puts "     connection details: #{ds.connection_details}"
+  end
 end
 
 # puts workspaces.length
