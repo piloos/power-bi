@@ -25,8 +25,13 @@ end
 pbi = PowerBI::Tenant.new(->{token = get_token(client, token) ; token.token})
 workspaces = pbi.workspaces
 
+gateways = pbi.gateways
 
-puts workspaces.length
+gateways.each do |gateway|
+  puts "gateway #{gateway.name} (#{gateway.id}) - type #{gateway.type}"
+end
+
+# puts workspaces.length
 
 # workspaces.create('Zoo7')
 
@@ -39,7 +44,7 @@ puts workspaces.length
 # zoo6 = workspaces.find{ |ws| ws.name == 'Zoo6'}
 # zoo7 = workspaces.find{ |ws| ws.name == 'Zoo7'}
 
-pr = workspaces.find{ |ws| ws.name == 'paginated_reports'}
+ws = workspaces.find{ |ws| ws.name == 'cdmtest'}
 
 # puts zoo1.reports.length
 
@@ -47,11 +52,21 @@ pr = workspaces.find{ |ws| ws.name == 'paginated_reports'}
 # cloned_report = original_report.clone(zoo2, 'zoo2_from_sharepoint')
 # clone_report = zoo2.reports.find { |r| r.name == 'zoo2_from_sharepoint'}
 
-# ds1 = zoo1.datasets.first
+datasets = ws.datasets
 
-# datasources = ds1.datasources
+# puts datasets.length
 
-# puts datasources.length
+datasets.each do |dataset|
+  puts "dataset #{dataset.name} (#{dataset.id})"
+
+  datasources = dataset.datasources
+
+  puts " * contains #{datasources.length} datasources"
+
+  datasources.each do |datasource|
+    puts "   * datasource #{datasource.datasource_id} - type #{datasource.datasource_type} on gateway #{datasource.gateway_id}"
+  end
+end
 
 # zoo7.upload_pbix('./examples/zoo_from_sharepoint.pbix', 'uploaded_stuff')
 # dataset = zoo3.datasets.first
@@ -86,8 +101,8 @@ pr = workspaces.find{ |ws| ws.name == 'paginated_reports'}
 # ds.refresh
 # p refreshes.map { |r| [r.status, r.start_time, r.end_time] }
 
-report = pr.reports.first
+#report = ws.reports.first
 
-report.export_to_file 'myexport.pdf'
+#report.export_to_file 'myexport.pdf'
 
 puts "end of story"
