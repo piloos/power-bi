@@ -50,6 +50,16 @@ module PowerBI
       true
     end
 
+    def bind_to_gateway(gateway, gateway_datasource)
+      @tenant.post("/groups/#{workspace.id}/datasets/#{id}/Default.BindToGateway") do |req|
+        req.body = {
+          gatewayObjectId: gateway.id,
+          datasourceObjectIds: [gateway_datasource.id]
+        }.to_json
+      end
+      true
+    end
+
   end
 
   class DatasetArray < Array

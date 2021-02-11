@@ -1,6 +1,6 @@
 module PowerBI
   class GatewayDatasource
-    attr_reader :id, :gateway_id, :datasource_type, :connection_details, :credential_type, :datasource_name
+    attr_reader :id, :gateway_id, :datasource_type, :connection_details, :credential_type, :datasource_name, :gateway
 
     def initialize(tenant, data)
       @gateway_id = data[:gatewayId]
@@ -9,7 +9,25 @@ module PowerBI
       @connection_details = data[:connectionDetails]
       @id = data[:id]
       @credential_type = data[:credentialType]
+      @gateway = data[:gateway]
       @tenant = tenant
+    end
+
+    def update_credentials(encrypted_credentials)
+      response = @tenant.patch("/gateways/#{gateway.id}/datasources/#{id}") do |req|
+        req.body = {
+          credentialDetails: {
+            credentialType: "Basic",
+            credentials: encrypted_credentials,
+            encryptedConnection: "Encrypted",
+            encryptionAlgorithm: "RSA-OAEP",
+            privacyLevel: "Organizational",
+            useCallerAADIdentity: false,
+            useEndUserOAuth2Credentials: false,
+          },
+        }.to_json
+      end
+      true
     end
 
   end
@@ -25,8 +43,32 @@ module PowerBI
       GatewayDatasource
     end
 
+    # only MySQL type is currently supported
+    def create(name, encrypted_credentials, db_server, db_name)
+      data = @tenant.post("/gateways/#{@gateway.id}/datasources",) do |req|
+        req.body = {
+          connectionDetails: {server: db_server, database: db_name}.to_json,
+          credentialDetails: {
+            credentialType: "Basic",
+            credentials: encrypted_credentials,
+            encryptedConnection: "Encrypted",
+            encryptionAlgorithm: "RSA-OAEP",
+            privacyLevel: "Organizational",
+            useCallerAADIdentity: false,
+            useEndUserOAuth2Credentials: false,
+          },
+          datasourceName: name,
+          datasourceType: 'MySql',
+        }.to_json
+      end
+      binding.pry
+      self.reload
+      GatewayDatasource.new(@tenant, data)
+    end
+
     def get_data
-      @tenant.get("/gateways/#{@gateway.id}/datasources")[:value]
+      data = @tenant.get("/gateways/#{@gateway.id}/datasources")[:value]
+      data.each { |d| d[:gateway] = @gateway }
     end
   end
 end

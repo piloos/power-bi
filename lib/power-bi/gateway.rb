@@ -1,11 +1,12 @@
 module PowerBI
   class Gateway
-    attr_reader :name, :id, :type, :gateway_datasources
+    attr_reader :name, :id, :type, :public_key, :gateway_datasources
 
     def initialize(tenant, data)
       @id = data[:id]
       @name = data[:name]
       @type = data[:type]
+      @public_key = data[:publicKey]
       @tenant = tenant
       @gateway_datasources = GatewayDatasourceArray.new(@tenant, self)
     end

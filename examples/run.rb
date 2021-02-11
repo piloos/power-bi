@@ -41,6 +41,13 @@ gateways.each do |gateway|
   end
 end
 
+encrypted_credentials = "amJxaoa18xAIO2lY3W27eVFXqH3NHA4RouUqUW5hjUefkgcOXX5gTeIu45zQAhrpu709LAB2Lh/ZQ5MnJQRjbcyEAkVOne3FOcCOKKsNEY78FSJxuKY9sXW6dJ98MSjrVCV911hnXClea8iDRp7kU26dZ80TWx1jnkLL/IPg6nTkrBd/8e68h8b5AOLOYP6Vb5QX3a7lG1B3gqARR1kA9d4SS0IpvQki4h1JMm2uqtJL1bTJjcdTx+SKlhjtDffbheqwUmWTpyEMnoHKsgPPorNA9Od+4qwwxND8QaeU6sV90j3uM29iloN5sDL4EpTeM5LQGl4Xj1H6KSCKVkHd9g==AADTz+4lSCGyMr4pwA99tIXNR7MTWDiLeXJqExDiByuoc1evshllxwPtinj+x2I9g1+YbNA/y7D5vqK0ntNc8xruF15Rlc+ITN6RHuesL9qan+XH5dD/Gj4WUPCFkZZM0xjmk0c4yIvaASNqJs7y2QcwnnQq2alSvNATJ7SD3y4UlmXxKKu8sGBkYQh1PxSUTtE0Oz0AUfw/IMelOwjHqUrg"
+
+# the_gateway = gateways[0]
+# the_gateway.gateway_datasources.create('cdmtest2', encrypted_credentials, 'db-val1.ctz7m0qmpwax.eu-central-1.rds.amazonaws.com', 'powerbitest_2')
+
+# the_gateway.gateway_datasources[0].update_credentials(encrypted_credentials)
+
 # puts workspaces.length
 
 # workspaces.create('Zoo7')
@@ -63,6 +70,10 @@ ws = workspaces.find{ |ws| ws.name == 'cdmtest'}
 # clone_report = zoo2.reports.find { |r| r.name == 'zoo2_from_sharepoint'}
 
 datasets = ws.datasets
+
+# the_gateway = gateways[0]
+# the_dataset = datasets.find { |ds| ds.name == 'cdmtest2' }
+# the_dataset.bind_to_gateway(the_gateway, the_gateway.gateway_datasources.find{ |ds| ds.datasource_name == 'cdmtest2'})
 
 # puts datasets.length
 
