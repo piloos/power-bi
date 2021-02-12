@@ -25,26 +25,35 @@ end
 pbi = PowerBI::Tenant.new(->{token = get_token(client, token) ; token.token})
 workspaces = pbi.workspaces
 
+ws = workspaces.create('val_cdm_45')
+ws.upload_pbix('./cdmtest2.pbix', 'cdm_test')
+ds = ws.datasets.first
+ds.update_parameter('dbserver', 'db-val1.ctz7m0qmpwax.eu-central-1.rds.amazonaws.com')
+ds.update_parameter('dbname', 'cdm_45')
+
 gateways = pbi.gateways
 
-gateways.each do |gateway|
-  puts "gateway #{gateway.name} (#{gateway.id}) - type #{gateway.type}"
+# gateways.each do |gateway|
+#   puts "gateway #{gateway.name} (#{gateway.id}) - type #{gateway.type}"
 
-  datasources = gateway.gateway_datasources
+#   datasources = gateway.gateway_datasources
 
-  puts " * contains #{datasources.length} gateway_datasources"
+#   puts " * contains #{datasources.length} gateway_datasources"
 
-  datasources.each do |ds|
-    puts "   * datasource #{ds.id} - type #{ds.datasource_type} on gateway #{ds.gateway_id}"
-    puts "     name #{ds.datasource_name}, credential type #{ds.credential_type}"
-    puts "     connection details: #{ds.connection_details}"
-  end
-end
+#   datasources.each do |ds|
+#     puts "   * datasource #{ds.id} - type #{ds.datasource_type} on gateway #{ds.gateway_id}"
+#     puts "     name #{ds.datasource_name}, credential type #{ds.credential_type}"
+#     puts "     connection details: #{ds.connection_details}"
+#   end
+# end
 
+# these encrypted credentials represent username 'cdmuser' with password 'cdmuserpw4879515365'
 encrypted_credentials = "amJxaoa18xAIO2lY3W27eVFXqH3NHA4RouUqUW5hjUefkgcOXX5gTeIu45zQAhrpu709LAB2Lh/ZQ5MnJQRjbcyEAkVOne3FOcCOKKsNEY78FSJxuKY9sXW6dJ98MSjrVCV911hnXClea8iDRp7kU26dZ80TWx1jnkLL/IPg6nTkrBd/8e68h8b5AOLOYP6Vb5QX3a7lG1B3gqARR1kA9d4SS0IpvQki4h1JMm2uqtJL1bTJjcdTx+SKlhjtDffbheqwUmWTpyEMnoHKsgPPorNA9Od+4qwwxND8QaeU6sV90j3uM29iloN5sDL4EpTeM5LQGl4Xj1H6KSCKVkHd9g==AADTz+4lSCGyMr4pwA99tIXNR7MTWDiLeXJqExDiByuoc1evshllxwPtinj+x2I9g1+YbNA/y7D5vqK0ntNc8xruF15Rlc+ITN6RHuesL9qan+XH5dD/Gj4WUPCFkZZM0xjmk0c4yIvaASNqJs7y2QcwnnQq2alSvNATJ7SD3y4UlmXxKKu8sGBkYQh1PxSUTtE0Oz0AUfw/IMelOwjHqUrg"
 
-# the_gateway = gateways[0]
-# the_gateway.gateway_datasources.create('cdmtest2', encrypted_credentials, 'db-val1.ctz7m0qmpwax.eu-central-1.rds.amazonaws.com', 'powerbitest_2')
+the_gateway = gateways[0]
+gw_datasource = the_gateway.gateway_datasources.create('cdm_45', encrypted_credentials, 'db-val1.ctz7m0qmpwax.eu-central-1.rds.amazonaws.com', 'cdm_45')
+
+ds.bind_to_gateway(the_gateway, gw_datasource)
 
 # the_gateway.gateway_datasources[0].update_credentials(encrypted_credentials)
 
@@ -61,7 +70,7 @@ encrypted_credentials = "amJxaoa18xAIO2lY3W27eVFXqH3NHA4RouUqUW5hjUefkgcOXX5gTeI
 # zoo6 = workspaces.find{ |ws| ws.name == 'Zoo6'}
 # zoo7 = workspaces.find{ |ws| ws.name == 'Zoo7'}
 
-ws = workspaces.find{ |ws| ws.name == 'cdmtest'}
+# ws = workspaces.find{ |ws| ws.name == 'cdmtest'}
 
 # puts zoo1.reports.length
 
@@ -69,7 +78,7 @@ ws = workspaces.find{ |ws| ws.name == 'cdmtest'}
 # cloned_report = original_report.clone(zoo2, 'zoo2_from_sharepoint')
 # clone_report = zoo2.reports.find { |r| r.name == 'zoo2_from_sharepoint'}
 
-datasets = ws.datasets
+# datasets = ws.datasets
 
 # the_gateway = gateways[0]
 # the_dataset = datasets.find { |ds| ds.name == 'cdmtest2' }
@@ -77,17 +86,17 @@ datasets = ws.datasets
 
 # puts datasets.length
 
-datasets.each do |dataset|
-  puts "dataset #{dataset.name} (#{dataset.id})"
+# datasets.each do |dataset|
+#   puts "dataset #{dataset.name} (#{dataset.id})"
 
-  datasources = dataset.datasources
+#   datasources = dataset.datasources
 
-  puts " * contains #{datasources.length} datasources"
+#   puts " * contains #{datasources.length} datasources"
 
-  datasources.each do |datasource|
-    puts "   * datasource #{datasource.datasource_id} - type #{datasource.datasource_type} on gateway #{datasource.gateway_id}"
-  end
-end
+#   datasources.each do |datasource|
+#     puts "   * datasource #{datasource.datasource_id} - type #{datasource.datasource_type} on gateway #{datasource.gateway_id}"
+#   end
+# end
 
 # zoo7.upload_pbix('./examples/zoo_from_sharepoint.pbix', 'uploaded_stuff')
 # dataset = zoo3.datasets.first

@@ -61,7 +61,6 @@ module PowerBI
           datasourceType: 'MySql',
         }.to_json
       end
-      binding.pry
       self.reload
       GatewayDatasource.new(@tenant, data)
     end
