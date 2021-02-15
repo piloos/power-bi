@@ -30,6 +30,12 @@ module PowerBI
       true
     end
 
+    def delete
+      @tenant.delete("/gateways/#{gateway.id}/datasources/#{id}")
+      @tenant.workspaces.reload
+      true
+    end
+
   end
 
   class GatewayDatasourceArray < Array

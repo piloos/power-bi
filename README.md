@@ -45,6 +45,7 @@ pbi = PowerBI::Tenant.new(->{token = get_token(client, token) ; token.token})
 * List datasources in a gateway: `gateway.gateway_datasources`
 * Update credentials of a gateway datasource: `gateway_datasource.update_credentials(new_credentials)`
 * Create a new gateway datasource: `gateway.gateway_datasource.create(name, credentials, db_server, db_name)`
+* Delete a new gateway datasource: `gateway_datasource.delete`
 
 # Note about gateway credentials
 
