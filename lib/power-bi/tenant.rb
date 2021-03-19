@@ -2,14 +2,30 @@ module PowerBI
   class Tenant
     attr_reader :workspaces, :gateways
 
-    def initialize(token_generator)
+    def initialize(token_generator, retries: 5)
       @token_generator = token_generator
       @workspaces = WorkspaceArray.new(self)
       @gateways = GatewayArray.new(self)
+
+      ## WHY RETRIES? ##
+      # It is noticed that once in a while (~0.1% API calls), the Power BI server returns a 500 (internal server error) withou apparent reason, just retrying works :-)
+      ##################
+      @retry_options = {
+        max: retries,
+        exceptions: [Errno::ETIMEDOUT, Timeout::Error, Faraday::TimeoutError, Faraday::RetriableResponse],
+        retry_statuses: [500], # internal server error
+        interval: 0.2,
+        interval_randomness: 0,
+        backoff_factor: 4,
+        retry_block: -> (env, options, retries, exc) { puts "retrying...!!" },
+      }
     end
 
     def get(url, params = {})
-      response = Faraday.get(PowerBI::BASE_URL + url) do |req|
+      conn = Faraday.new do |f|
+        f.request :retry, @retry_options
+      end
+      response = conn.get(PowerBI::BASE_URL + url) do |req|
         req.params = params
         req.headers['Accept'] = 'application/json'
         req.headers['authorization'] = "Bearer #{token}"
@@ -24,7 +40,10 @@ module PowerBI
     end
 
     def get_raw(url, params = {})
-      response = Faraday.get(PowerBI::BASE_URL + url) do |req|
+      conn = Faraday.new do |f|
+        f.request :retry, @retry_options
+      end
+      response = conn.get(PowerBI::BASE_URL + url) do |req|
         req.params = params
         req.headers['authorization'] = "Bearer #{token}"
         yield req if block_given?
@@ -36,7 +55,10 @@ module PowerBI
     end
 
     def post(url, params = {})
-      response = Faraday.post(PowerBI::BASE_URL + url) do |req|
+      conn = Faraday.new do |f|
+        f.request :retry, @retry_options
+      end
+      response = conn.post(PowerBI::BASE_URL + url) do |req|
         req.params = params
         req.headers['Accept'] = 'application/json'
         req.headers['Content-Type'] = 'application/json'
@@ -52,7 +74,10 @@ module PowerBI
     end
 
     def patch(url, params = {})
-      response = Faraday.patch(PowerBI::BASE_URL + url) do |req|
+      conn = Faraday.new do |f|
+        f.request :retry, @retry_options
+      end
+      response = conn.patch(PowerBI::BASE_URL + url) do |req|
         req.params = params
         req.headers['Accept'] = 'application/json'
         req.headers['Content-Type'] = 'application/json'
@@ -68,7 +93,10 @@ module PowerBI
     end
 
     def delete(url, params = {})
-      response = Faraday.delete(PowerBI::BASE_URL + url) do |req|
+      conn = Faraday.new do |f|
+        f.request :retry, @retry_options
+      end
+      response = conn.delete(PowerBI::BASE_URL + url) do |req|
         req.params = params
         req.headers['Accept'] = 'application/json'
         req.headers['authorization'] = "Bearer #{token}"
@@ -85,6 +113,7 @@ module PowerBI
     def post_file(url, file, params = {})
       conn = Faraday.new do |f|
         f.request :multipart
+        f.request :retry, @retry_options
       end
       response = conn.post(PowerBI::BASE_URL + url) do |req|
         req.params = params
