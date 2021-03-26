@@ -13,11 +13,12 @@ module PowerBI
       @retry_options = {
         max: retries,
         exceptions: [Errno::ETIMEDOUT, Timeout::Error, Faraday::TimeoutError, Faraday::RetriableResponse],
+        methods: [:get, :post, :patch, :delete],
         retry_statuses: [500], # internal server error
         interval: 0.2,
         interval_randomness: 0,
         backoff_factor: 4,
-        retry_block: -> (env, options, retries, exc) { puts "retrying...!!" },
+        retry_block: -> (env, options, retries, exc) { puts "retrying...!! (@ #{Time.now.to_s}), exception: #{exc.to_s} ---- #{exc.message}" },
       }
     end
 
@@ -121,6 +122,7 @@ module PowerBI
         req.headers['Content-Type'] = 'multipart/form-data'
         req.headers['authorization'] = "Bearer #{token}"
         req.body = {value: Faraday::UploadIO.new(file, 'application/octet-stream')}
+        req.options.timeout = 120  # default is 60 seconds Net::ReadTimeout
       end
       if response.status != 202
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
