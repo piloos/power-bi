@@ -47,6 +47,7 @@ module PowerBI
 
     def delete
       @tenant.delete("/groups/#{workspace.id}/datasets/#{id}")
+      @workspace.datasets.reload
       true
     end
 

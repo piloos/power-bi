@@ -32,7 +32,7 @@ module PowerBI
 
     def delete
       @tenant.delete("/gateways/#{gateway.id}/datasources/#{id}")
-      @tenant.workspaces.reload
+      @gateway.gateway_datasources.reload
       true
     end
 
