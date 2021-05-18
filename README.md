@@ -27,6 +27,10 @@ pbi = PowerBI::Tenant.new(->{token = get_token(client, token) ; token.token})
 * Rebind report to another dataset: `report.rebind(dataset)`
 * Export report to file: `report.export_to_file(filenam, format: 'PDF')`
 
+## Pages
+
+* List pages in a report: `report.pages`
+
 ## Datasets
 
 * List datasets in a workspace: `workspace.datasets`

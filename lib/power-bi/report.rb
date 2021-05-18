@@ -1,6 +1,6 @@
 module PowerBI
   class Report
-    attr_reader :name, :id, :report_type, :web_url, :embed_url, :is_from_pbix, :is_owned_by_me, :dataset_id, :workspace
+    attr_reader :name, :id, :report_type, :web_url, :embed_url, :is_from_pbix, :is_owned_by_me, :dataset_id, :workspace, :pages
 
     class ExportToFileError < PowerBI::Error ; end
 
@@ -15,6 +15,7 @@ module PowerBI
       @dataset_id = data[:datasetId]
       @workspace = data[:workspace]
       @tenant = tenant
+      @pages = PageArray.new(@tenant, self)
     end
 
     def clone(target_workspace, new_report_name)
