@@ -1,10 +1,13 @@
 module PowerBI
   class User
-    attr_reader :email_address, :group_user_access_right
+    attr_reader :email_address, :group_user_access_right, :display_name, :identifier, :principal_type
 
     def initialize(tenant, data)
       @email_address = data[:emailAddress]
       @group_user_access_right = data[:groupUserAccessRight]
+      @display_name = data[:displayName]
+      @identifier = data[:identifier]
+      @principal_type = data[:principalType]
       @workspace = data[:workspace]
       @tenant = tenant
     end
