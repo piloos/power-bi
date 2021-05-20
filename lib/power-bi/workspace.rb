@@ -1,6 +1,6 @@
 module PowerBI
   class Workspace
-    attr_reader :name, :is_read_only, :is_on_dedicated_capacity, :id, :reports, :datasets
+    attr_reader :name, :is_read_only, :is_on_dedicated_capacity, :id, :reports, :datasets, :users
 
     class UploadError < PowerBI::Error ; end
 
@@ -12,6 +12,7 @@ module PowerBI
       @tenant = tenant
       @reports = ReportArray.new(@tenant, self)
       @datasets = DatasetArray.new(@tenant, self)
+      @users = UserArray.new(@tenant, self)
     end
 
     def upload_pbix(file, dataset_name, timeout: 30)
@@ -40,17 +41,6 @@ module PowerBI
     def delete
       @tenant.delete("/groups/#{@id}")
       @tenant.workspaces.reload
-      true
-    end
-
-    # TODO LATER: the 'Viewer' acces right is currently not settable throught the API. Fix that later
-    def add_user(email_address, access_right = 'Member')
-      @tenant.post("/groups/#{id}/users") do |req|
-        req.body = {
-          emailAddress: email_address,
-          groupUserAccessRight: access_right
-        }.to_json
-      end
       true
     end
 
