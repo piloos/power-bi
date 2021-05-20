@@ -31,6 +31,12 @@ pbi = PowerBI::Tenant.new(->{token = get_token(client, token) ; token.token})
 
 * List pages in a report: `report.pages`
 
+## Users
+
+* List users in a workspace: `workspace.pages`
+* Delete a user from a workspace: `user.delete`
+* Add a user to a workspace: `workspace.create(email_address, access_right: "Viewer")`
+
 ## Datasets
 
 * List datasets in a workspace: `workspace.datasets`
