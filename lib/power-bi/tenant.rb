@@ -2,10 +2,11 @@ module PowerBI
   class Tenant
     attr_reader :workspaces, :gateways
 
-    def initialize(token_generator, retries: 5)
+    def initialize(token_generator, retries: 5, logger: nil)
       @token_generator = token_generator
       @workspaces = WorkspaceArray.new(self)
       @gateways = GatewayArray.new(self)
+      @logger = logger
 
       ## WHY RETRIES? ##
       # It is noticed that once in a while (~0.1% API calls), the Power BI server returns a 500 (internal server error) withou apparent reason, just retrying works :-)
@@ -18,11 +19,18 @@ module PowerBI
         interval: 0.2,
         interval_randomness: 0,
         backoff_factor: 4,
-        retry_block: -> (env, options, retries, exc) { puts "retrying...!! (@ #{Time.now.to_s}), exception: #{exc.to_s} ---- #{exc.message}" },
+        retry_block: -> (env, options, retries, exc) { self.log "retrying...!! exception: #{exc.to_s} ---- #{exc.message}, request URL: #{env.url}" },
       }
     end
 
+    def log(message, level: :info)
+      if @logger
+        @logger.send(level, message) # hence, the logger needs to implement the 'level' methods
+      end
+    end
+
     def get(url, params = {})
+      t0 = Time.now
       conn = Faraday.new do |f|
         f.request :retry, @retry_options
       end
@@ -35,12 +43,14 @@ module PowerBI
       unless [200, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
+      log "Calling (GET) #{url} - took #{((Time.now - t0) * 1000).to_i} ms"
       unless response.body.empty?
         JSON.parse(response.body, symbolize_names: true)
       end
     end
 
     def get_raw(url, params = {})
+      t0 = Time.now
       conn = Faraday.new do |f|
         f.request :retry, @retry_options
       end
@@ -49,6 +59,7 @@ module PowerBI
         req.headers['authorization'] = "Bearer #{token}"
         yield req if block_given?
       end
+      log "Calling (GET - raw) #{url} - took #{((Time.now - t0) * 1000).to_i} ms"
       unless [200, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
@@ -56,6 +67,7 @@ module PowerBI
     end
 
     def post(url, params = {})
+      t0 = Time.now
       conn = Faraday.new do |f|
         f.request :retry, @retry_options
       end
@@ -66,6 +78,7 @@ module PowerBI
         req.headers['authorization'] = "Bearer #{token}"
         yield req if block_given?
       end
+      log "Calling (POST) #{url} - took #{((Time.now - t0) * 1000).to_i} ms"
       unless [200, 201, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
@@ -75,6 +88,7 @@ module PowerBI
     end
 
     def patch(url, params = {})
+      t0 = Time.now
       conn = Faraday.new do |f|
         f.request :retry, @retry_options
       end
@@ -85,6 +99,7 @@ module PowerBI
         req.headers['authorization'] = "Bearer #{token}"
         yield req if block_given?
       end
+      log "Calling (PATCH) #{url} - took #{((Time.now - t0) * 1000).to_i} ms"
       unless [200, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
@@ -94,6 +109,7 @@ module PowerBI
     end
 
     def delete(url, params = {})
+      t0 = Time.now
       conn = Faraday.new do |f|
         f.request :retry, @retry_options
       end
@@ -103,6 +119,7 @@ module PowerBI
         req.headers['authorization'] = "Bearer #{token}"
         yield req if block_given?
       end
+      log "Calling (DELETE) #{url} - took #{((Time.now - t0) * 1000).to_i} ms"
       unless [200, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
@@ -112,6 +129,7 @@ module PowerBI
     end
 
     def post_file(url, file, params = {})
+      t0 = Time.now
       conn = Faraday.new do |f|
         f.request :multipart
         f.request :retry, @retry_options
@@ -124,6 +142,7 @@ module PowerBI
         req.body = {value: Faraday::UploadIO.new(file, 'application/octet-stream')}
         req.options.timeout = 120  # default is 60 seconds Net::ReadTimeout
       end
+      log "Calling (POST - file) #{url} - took #{((Time.now - t0) * 1000).to_i} ms"
       if response.status != 202
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end

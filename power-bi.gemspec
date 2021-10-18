@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'power-bi'
-  s.version     = '1.5.0'
+  s.version     = '1.6.0'
   s.date        = '2020-11-11'
   s.summary     = "Ruby wrapper for the Power BI API"
   s.description = "Ruby wrapper for the Power BI API"
@@ -13,4 +13,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'faraday', '~> 1.0'
 
   s.add_development_dependency 'webmock', '~> 3.0'
+  s.add_development_dependency 'pry'
+  s.add_development_dependency 'pry-byebug'
+  s.add_development_dependency 'oauth2'
 end
