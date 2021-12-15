@@ -23,13 +23,13 @@ module PowerBI
       status_history = ''
       old_status = ''
       while !success
-        sleep 0.1
+        sleep 0.5
         iterations += 1
-        raise UploadError.new("Upload did not succeed after #{timeout} seconds. Status history:#{status_history}") if iterations > (10 * timeout)
+        raise UploadError.new("Upload did not succeed after #{timeout} seconds. Status history:#{status_history}") if iterations > (2 * timeout)
         new_status = @tenant.get("/groups/#{@id}/imports/#{import_id}")[:importState].to_s
         success = (new_status == "Succeeded")
         if new_status != old_status
-          status_history += "\nStatus change after #{iterations/10.0}s: '#{old_status}' --> '#{new_status}'"
+          status_history += "\nStatus change after #{iterations/2}s: '#{old_status}' --> '#{new_status}'"
           old_status = new_status
         end
       end
