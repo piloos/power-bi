@@ -3,7 +3,7 @@ module PowerBI
     attr_reader :display_name, :name, :order, :report
 
     def initialize(tenant, data)
-      @name = data[:Name]
+      @name = data[:name]
       @display_name = data[:displayName]
       @order = data[:order]
       @report = data[:report]
