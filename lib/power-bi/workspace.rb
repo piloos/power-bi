@@ -12,7 +12,7 @@ module PowerBI
     end
 
     def get_data(id)
-      @tenant.get("/groups?$filter=id%20eq%20#{id}")[:value].first
+      @tenant.get("/groups", {'$filter': "id eq #{id}"})[:value].first
     end
 
     def data_to_attributes(data)

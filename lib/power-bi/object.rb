@@ -9,12 +9,14 @@ module PowerBI
     def initialize(tenant, id = nil)
       @id = id
       @fulfilled = false
+      @not_found = nil
       @attributes = nil
       @tenant = tenant
     end
 
     def set_attributes(data)
       @fulfilled = true
+      @not_found = false
       @id = data[:id]
       @attributes = data_to_attributes(data)
     end
@@ -36,7 +38,12 @@ module PowerBI
     def get_attributes
       unless @fulfilled
         raise UnspecifiedIdError unless @id
-        set_attributes(get_data(@id))
+        begin
+          set_attributes(get_data(@id))
+        rescue PowerBI::NotFoundError
+          @not_found = true
+          raise PowerBI::NotFoundError
+        end
       end
       @attributes
     end

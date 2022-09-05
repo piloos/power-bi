@@ -48,6 +48,9 @@ module PowerBI
         req.headers['authorization'] = "Bearer #{token}"
         yield req if block_given?
       end
+      if response.status == 400
+        raise NotFoundError
+      end
       unless [200, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end

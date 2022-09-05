@@ -8,6 +8,7 @@ module PowerBI
 
   class Error < StandardError ; end
   class APIError < Error ; end
+  class NotFoundError < Error; end
 end
 
 require_relative "power-bi/tenant"
