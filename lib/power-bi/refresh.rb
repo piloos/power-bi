@@ -1,15 +1,22 @@
 module PowerBI
-  class Refresh
-    attr_reader :refresh_type, :start_time, :end_time, :service_exception_json, :status, :request_id
+  class Refresh < Object
+    attr_reader :dataset
 
-    def initialize(tenant, data)
-      @id = data[:id]
-      @refresh_type = data[:refreshType]
-      @start_time = DateTime.iso8601(data[:startTime])
-      @end_time = DateTime.iso8601(data[:endTime]) if data[:endTime]
-      @service_exception_json = data[:serviceExceptionJson]
-      @status = data[:status]
-      @request_id = data[:requestId]
+    def initialize(tenant, parent, id = nil)
+      super(tenant, id)
+      @dataset = parent
+    end
+
+    def data_to_attributes(data)
+      {
+        id: data[:id],
+        refresh_type: data[:refreshType],
+        start_time: DateTime.iso8601(data[:startTime]),
+        end_time: data[:endTime] ? DateTime.iso8601(data[:endTime]) : nil,
+        service_exception_json: data[:serviceExceptionJson],
+        status: data[:status],
+        request_id: data[:requestId],
+      }
     end
 
   end
@@ -17,7 +24,7 @@ module PowerBI
   class RefreshArray < Array
 
     def initialize(tenant, dataset)
-      super(tenant)
+      super(tenant, dataset)
       @dataset = dataset
     end
 
@@ -26,7 +33,7 @@ module PowerBI
     end
 
     def get_data
-      @tenant.get("/groups/#{@dataset.workspace.id}/datasets/#{@dataset.id}/refreshes", {'$top': '3'})[:value]
+      @tenant.get("/groups/#{@dataset.workspace.id}/datasets/#{@dataset.id}/refreshes", {'$top': '1'})[:value]
     end
   end
 end

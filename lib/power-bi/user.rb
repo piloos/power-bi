@@ -1,15 +1,20 @@
 module PowerBI
-  class User
-    attr_reader :email_address, :group_user_access_right, :display_name, :identifier, :principal_type
+  class User < Object
+    attr_reader :workspace
 
-    def initialize(tenant, data)
-      @email_address = data[:emailAddress]
-      @group_user_access_right = data[:groupUserAccessRight]
-      @display_name = data[:displayName]
-      @identifier = data[:identifier]
-      @principal_type = data[:principalType]
-      @workspace = data[:workspace]
-      @tenant = tenant
+    def initialize(tenant, parent, id = nil)
+      super(tenant, id)
+      @workspace = parent
+    end
+
+    def data_to_attributes(data)
+      {
+        email_address: data[:emailAddress],
+        group_user_access_right: data[:groupUserAccessRight],
+        display_name: data[:displayName],
+        identifier: data[:identifier],
+        principal_type: data[:principalType],
+      }
     end
 
     def delete
@@ -22,7 +27,7 @@ module PowerBI
   class UserArray < Array
 
     def initialize(tenant, workspace)
-      super(tenant)
+      super(tenant, workspace)
       @workspace = workspace
     end
 
@@ -41,8 +46,7 @@ module PowerBI
     end
 
     def get_data
-      data = @tenant.get("/groups/#{@workspace.id}/users")[:value]
-      data.each { |d| d[:workspace] = @workspace }
+      @tenant.get("/groups/#{@workspace.id}/users")[:value]
     end
   end
 end

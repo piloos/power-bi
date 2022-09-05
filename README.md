@@ -12,9 +12,14 @@ pbi = PowerBI::Tenant.new(->{token = get_token(client, token) ; token.token})
 
 # Supported endpoints
 
+Note: where possible we use _lazy evaluation_: we only call the REST API endpoint when really needed. For examples `pbi.workspaces` won't trigger a call, while `pbi.workspaces.count` will trigger a call.  And `pbi.workspace('123')`, while `pbi.workspace('123').name` will trigger a call.
+
+Note 2: to limit the number of API calls, it is best to directly use the _getters_ iso the index.
+
 ## Workspaces (aka Groups)
 
 * List workspaces: `pbi.workspaces`
+* Get a specific workspace `pbi.workspace(id)`
 * Create workspace: `pbi.workspaces.create`
 * Upload PBIX to workspace: `ws.upload_pbix('./test.pbix', 'new_datasetname_in_the_service')`
 * Delete workspace: `workspace.delete`
@@ -23,6 +28,7 @@ pbi = PowerBI::Tenant.new(->{token = get_token(client, token) ; token.token})
 ## Reports
 
 * List reports in a workspace: `workspace.reports`
+* Get report in a workspace: `workspace.report(id)`
 * Clone a report from one workspace to another: `report.clone(src_workspace, new_report_name)`
 * Rebind report to another dataset: `report.rebind(dataset)`
 * Export report to file: `report.export_to_file(filenam, format: 'PDF')`
@@ -40,6 +46,7 @@ pbi = PowerBI::Tenant.new(->{token = get_token(client, token) ; token.token})
 ## Datasets
 
 * List datasets in a workspace: `workspace.datasets`
+* Get report in a workspace: `workspace.dataset(id)`
 * Update parameter in a dataset: `dataset.update_parameter(parameter_name, new_value)`
 * Get time of last refresh: `dataset.last_refresh`
 * Refresh the dataset: `dataset.refresh`
@@ -49,6 +56,7 @@ pbi = PowerBI::Tenant.new(->{token = get_token(client, token) ; token.token})
 ## Gateways
 
 * List gateways: `pbi.gateways`
+* Get a specific gateway `pbi.gateway(id)`
 
 ## Gateway datasources
 

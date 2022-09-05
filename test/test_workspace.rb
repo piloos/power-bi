@@ -97,7 +97,7 @@ module PowerBI
 
       before do
         @tenant = Tenant.new(->{dummy_token})
-        @ws = Workspace.new(@tenant, {id: 7})
+        @ws = Workspace.instantiate_from_data(@tenant, nil, {id: 7})
       end
 
       it "possible to upload pbix" do
@@ -116,7 +116,7 @@ module PowerBI
         error = assert_raises PowerBI::Workspace::UploadError do
           @ws.upload_pbix('./test/zoo_from_sharepoint.pbix', 'newstuff', timeout: 1)
         end
-        assert_equal "Upload did not succeed after 1 seconds. Status history:\nStatus change after 0.1s: '' --> 'Publishing'", error.message
+        assert_equal "Upload did not succeed after 1 seconds. Status history:\nStatus change after 0s: '' --> 'Publishing'", error.message
       end
 
     end

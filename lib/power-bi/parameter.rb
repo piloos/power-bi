@@ -1,12 +1,19 @@
 module PowerBI
-  class Parameter
-    attr_reader :name, :type, :is_required, :current_value
+  class Parameter < Object
+    attr_reader :dataset
 
-    def initialize(tenant, data)
-      @name = data[:name]
-      @type = data[:type]
-      @is_required = data[:isRequired]
-      @current_value = data[:currentValue]
+    def initialize(tenant, parent, id = nil)
+      super(tenant, id)
+      @dataset = parent
+    end
+
+    def data_to_attributes(data)
+      {
+        name: data[:name],
+        type: data[:type],
+        is_required: data[:isRequired],
+        current_value: data[:currentValue],
+      }
     end
 
   end
@@ -14,7 +21,7 @@ module PowerBI
   class ParameterArray < Array
 
     def initialize(tenant, dataset)
-      super(tenant)
+      super(tenant, dataset)
       @dataset = dataset
     end
 

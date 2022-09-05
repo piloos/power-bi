@@ -1,20 +1,26 @@
 module PowerBI
-  class Page
-    attr_reader :display_name, :name, :order, :report
+  class Page < Object
+    attr_reader :report
 
-    def initialize(tenant, data)
-      @name = data[:name]
-      @display_name = data[:displayName]
-      @order = data[:order]
-      @report = data[:report]
-      @tenant = tenant
+    def initialize(tenant, parent, id = nil)
+      super(tenant, id)
+      @report = parent
     end
+
+    def data_to_attributes(data)
+      {
+        name: data[:name],
+        display_name: data[:displayName],
+        order: data[:order],
+      }
+    end
+
   end
 
   class PageArray < Array
 
     def initialize(tenant, report)
-      super(tenant)
+      super(tenant, report)
       @report = report
     end
 
@@ -23,8 +29,7 @@ module PowerBI
     end
 
     def get_data
-      data = @tenant.get("/groups/#{@report.workspace.id}/reports/#{@report.id}/pages")[:value]
-      data.each { |d| d[:report] = @report }
+      @tenant.get("/groups/#{@report.workspace.id}/reports/#{@report.id}/pages")[:value]
     end
   end
 end

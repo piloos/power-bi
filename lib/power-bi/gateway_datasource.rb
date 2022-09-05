@@ -1,20 +1,26 @@
 module PowerBI
-  class GatewayDatasource
-    attr_reader :id, :gateway_id, :datasource_type, :connection_details, :credential_type, :datasource_name, :gateway
+  class GatewayDatasource < Object
+    attr_reader :gateway
 
-    def initialize(tenant, data)
-      @gateway_id = data[:gatewayId]
-      @datasource_type = data[:datasourceType]
-      @datasource_name = data[:datasourceName]
-      @connection_details = data[:connectionDetails]
-      @id = data[:id]
-      @credential_type = data[:credentialType]
-      @gateway = data[:gateway]
-      @tenant = tenant
+    def initialize(tenant, parent, id = nil)
+      super(tenant, id)
+      @gateway = parent
+    end
+
+    def data_to_attributes(data)
+      {
+        gateway_id: data[:gatewayId],
+        datasource_type: data[:datasourceType],
+        datasource_name: data[:datasourceName],
+        connection_details: data[:connectionDetails],
+        id: data[:id],
+        credential_type: data[:credentialType],
+        gateway: data[:gateway],
+      }
     end
 
     def update_credentials(encrypted_credentials)
-      response = @tenant.patch("/gateways/#{gateway.id}/datasources/#{id}") do |req|
+      @tenant.patch("/gateways/#{gateway.id}/datasources/#{id}") do |req|
         req.body = {
           credentialDetails: {
             credentialType: "Basic",
@@ -41,7 +47,7 @@ module PowerBI
   class GatewayDatasourceArray < Array
 
     def initialize(tenant, gateway)
-      super(tenant)
+      super(tenant, gateway)
       @gateway = gateway
     end
 
@@ -72,8 +78,7 @@ module PowerBI
     end
 
     def get_data
-      data = @tenant.get("/gateways/#{@gateway.id}/datasources")[:value]
-      data.each { |d| d[:gateway] = @gateway }
+      @tenant.get("/gateways/#{@gateway.id}/datasources")[:value]
     end
   end
 end

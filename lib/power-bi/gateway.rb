@@ -1,14 +1,23 @@
 module PowerBI
-  class Gateway
-    attr_reader :name, :id, :type, :public_key, :gateway_datasources
+  class Gateway < Object
+    attr_reader :gateway_datasources
 
-    def initialize(tenant, data)
-      @id = data[:id]
-      @name = data[:name]
-      @type = data[:type]
-      @public_key = data[:publicKey]
-      @tenant = tenant
+    def initialize(tenant, parent, id = nil)
+      super(tenant, id)
       @gateway_datasources = GatewayDatasourceArray.new(@tenant, self)
+    end
+
+    def get_data(id)
+      @tenant.get("/gateways/#{id}")
+    end
+
+    def data_to_attributes(data)
+      {
+        id: data[:id],
+        name: data[:name],
+        type: data[:type],
+        public_key: data[:publicKey],
+      }
     end
 
   end

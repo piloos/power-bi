@@ -11,6 +11,7 @@ module PowerBI
 end
 
 require_relative "power-bi/tenant"
+require_relative "power-bi/object"
 require_relative "power-bi/array"
 require_relative "power-bi/workspace"
 require_relative "power-bi/report"

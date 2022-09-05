@@ -29,6 +29,14 @@ module PowerBI
       end
     end
 
+    def workspace(id)
+      Workspace.new(self, nil, id)
+    end
+
+    def gateway(id)
+      Gateway.new(self, nil, id)
+    end
+
     def get(url, params = {})
       t0 = Time.now
       conn = Faraday.new do |f|
@@ -43,7 +51,7 @@ module PowerBI
       unless [200, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
-      log "Calling (GET) #{url} - took #{((Time.now - t0) * 1000).to_i} ms"
+      log "Calling (GET) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
       unless response.body.empty?
         JSON.parse(response.body, symbolize_names: true)
       end
@@ -59,7 +67,7 @@ module PowerBI
         req.headers['authorization'] = "Bearer #{token}"
         yield req if block_given?
       end
-      log "Calling (GET - raw) #{url} - took #{((Time.now - t0) * 1000).to_i} ms"
+      log "Calling (GET - raw) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
       unless [200, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
@@ -78,7 +86,7 @@ module PowerBI
         req.headers['authorization'] = "Bearer #{token}"
         yield req if block_given?
       end
-      log "Calling (POST) #{url} - took #{((Time.now - t0) * 1000).to_i} ms"
+      log "Calling (POST) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
       unless [200, 201, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
@@ -99,7 +107,7 @@ module PowerBI
         req.headers['authorization'] = "Bearer #{token}"
         yield req if block_given?
       end
-      log "Calling (PATCH) #{url} - took #{((Time.now - t0) * 1000).to_i} ms"
+      log "Calling (PATCH) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
       unless [200, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
@@ -119,7 +127,7 @@ module PowerBI
         req.headers['authorization'] = "Bearer #{token}"
         yield req if block_given?
       end
-      log "Calling (DELETE) #{url} - took #{((Time.now - t0) * 1000).to_i} ms"
+      log "Calling (DELETE) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
       unless [200, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
@@ -142,7 +150,7 @@ module PowerBI
         req.body = {value: Faraday::UploadIO.new(file, 'application/octet-stream')}
         req.options.timeout = 120  # default is 60 seconds Net::ReadTimeout
       end
-      log "Calling (POST - file) #{url} - took #{((Time.now - t0) * 1000).to_i} ms"
+      log "Calling (POST - file) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
       if response.status != 202
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end

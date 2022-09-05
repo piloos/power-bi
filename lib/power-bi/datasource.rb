@@ -1,13 +1,19 @@
 module PowerBI
-  class Datasource
-    attr_reader :gateway_id, :datasource_id, :datasource_type, :connection_details
+  class Datasource < Object
+    attr_reader :dataset
 
-    def initialize(tenant, data)
-      @gateway_id = data[:gatewayId]
-      @datasource_type = data[:datasourceType]
-      @connection_details = data[:connectionDetails]
-      @datasource_id = data[:datasourceId]
-      @tenant = tenant
+    def initialize(tenant, parent, id = nil)
+      super(tenant, id)
+      @dataset = parent
+    end
+
+    def data_to_attributes(data)
+      {
+        gateway_id: data[:gatewayId],
+        datasource_type: data[:datasourceType],
+        connection_details: data[:connectionDetails],
+        datasource_id: data[:datasourceId],
+      }
     end
 
   end
@@ -15,7 +21,7 @@ module PowerBI
   class DatasourceArray < Array
 
     def initialize(tenant, dataset)
-      super(tenant)
+      super(tenant, dataset)
       @dataset = dataset
     end
 

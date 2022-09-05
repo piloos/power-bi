@@ -2,10 +2,11 @@ module PowerBI
 
   class Array
 
-    def initialize(tenant)
+    def initialize(tenant, parent = nil)
       @fulfilled = false
       @content = nil
       @tenant = tenant
+      @parent = parent
     end
 
     def reload
@@ -19,7 +20,7 @@ module PowerBI
     def get_content
       unless @fulfilled
         klass = self.class.get_class
-        @content = get_data.map { |d| klass.new(@tenant, d)}
+        @content = get_data.map { |d| klass.instantiate_from_data(@tenant, @parent, d) }
         @fulfilled = true
       end
       @content

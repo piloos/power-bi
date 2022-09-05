@@ -1,21 +1,30 @@
 module PowerBI
-  class Report
-    attr_reader :name, :id, :report_type, :web_url, :embed_url, :is_from_pbix, :is_owned_by_me, :dataset_id, :workspace, :pages
+  class Report < Object
+    attr_reader :workspace, :pages
 
     class ExportToFileError < PowerBI::Error ; end
 
-    def initialize(tenant, data)
-      @id = data[:id]
-      @report_type = data[:reportType]
-      @name = data[:name]
-      @web_url = data[:webUrl]
-      @embed_url = data[:embedUrl]
-      @is_from_pbix = data[:isFromPbix]
-      @is_owned_by_me = data[:isOwnedByMe]
-      @dataset_id = data[:datasetId]
-      @workspace = data[:workspace]
-      @tenant = tenant
+    def initialize(tenant, parent, id = nil)
+      super(tenant, id)
+      @workspace = parent
       @pages = PageArray.new(@tenant, self)
+    end
+
+    def get_data(id)
+      @tenant.get("/groups/#{@workspace.id}/reports/#{id}")
+    end
+
+    def data_to_attributes(data)
+      {
+        id: data[:id],
+        report_type: data[:reportType],
+        name: data[:name],
+        web_url: data[:webUrl],
+        embed_url: data[:embedUrl],
+        is_from_pbix: data[:isFromPbix],
+        is_owned_by_me: data[:isOwnedByMe],
+        dataset_id: data[:datasetId],
+      }
     end
 
     def clone(target_workspace, new_report_name)
@@ -75,7 +84,7 @@ module PowerBI
   class ReportArray < Array
 
     def initialize(tenant, workspace)
-      super(tenant)
+      super(tenant, workspace)
       @workspace = workspace
     end
 
@@ -84,8 +93,7 @@ module PowerBI
     end
 
     def get_data
-      data = @tenant.get("/groups/#{@workspace.id}/reports")[:value]
-      data.each { |d| d[:workspace] = @workspace }
+      @tenant.get("/groups/#{@workspace.id}/reports")[:value]
     end
   end
 end

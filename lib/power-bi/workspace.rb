@@ -1,18 +1,27 @@
 module PowerBI
-  class Workspace
-    attr_reader :name, :is_read_only, :is_on_dedicated_capacity, :id, :reports, :datasets, :users
+  class Workspace < Object
+    attr_reader :reports, :datasets, :users
 
     class UploadError < PowerBI::Error ; end
 
-    def initialize(tenant, data)
-      @id = data[:id]
-      @is_read_only = data[:isReadOnly]
-      @is_on_dedicated_capacity = data[:isOnDedicatedCapacity]
-      @name = data[:name]
-      @tenant = tenant
+    def initialize(tenant, parent, id = nil)
+      super(tenant, id)
       @reports = ReportArray.new(@tenant, self)
       @datasets = DatasetArray.new(@tenant, self)
       @users = UserArray.new(@tenant, self)
+    end
+
+    def get_data(id)
+      @tenant.get("/groups?$filter=id%20eq%20#{id}")[:value].first
+    end
+
+    def data_to_attributes(data)
+      {
+        id: data[:id],
+        is_read_only: data[:isReadOnly],
+        is_on_dedicated_capacity: data[:isOnDedicatedCapacity],
+        name: data[:name],
+      }
     end
 
     def upload_pbix(file, dataset_name, timeout: 30)
@@ -44,6 +53,14 @@ module PowerBI
       true
     end
 
+    def report(id)
+      Report.new(@tenant, self, id)
+    end
+
+    def dataset(id)
+      Dataset.new(@tenant, self, id)
+    end
+
   end
 
   class WorkspaceArray < Array
@@ -56,7 +73,7 @@ module PowerBI
         req.body = {name: name}.to_json
       end
       self.reload
-      Workspace.new(@tenant, data)
+      Workspace.instantiate_from_data(@tenant, nil, data)
     end
 
     def get_data
