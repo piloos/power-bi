@@ -7,6 +7,10 @@ module PowerBI
       @gateway = parent
     end
 
+    def get_data(id)
+      @tenant.get("/gateways/#{@gateway.id}/datasources/#{id}")
+    end
+
     def data_to_attributes(data)
       {
         gateway_id: data[:gatewayId],

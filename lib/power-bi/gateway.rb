@@ -20,6 +20,10 @@ module PowerBI
       }
     end
 
+    def gateway_datasource(id)
+      GatewayDatasource.new(@tenant, self, id)
+    end
+
   end
 
   class GatewayArray < Array
