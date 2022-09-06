@@ -131,6 +131,9 @@ module PowerBI
         yield req if block_given?
       end
       log "Calling (DELETE) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
+      if [400, 401, 404].include? response.status
+        raise NotFoundError
+      end
       unless [200, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end

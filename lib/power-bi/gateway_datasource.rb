@@ -78,7 +78,7 @@ module PowerBI
         }.to_json
       end
       self.reload
-      GatewayDatasource.new(@tenant, data)
+      GatewayDatasource.instantiate_from_data(@tenant, @gateway, data)
     end
 
     def get_data
