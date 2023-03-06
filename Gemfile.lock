@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    power-bi (2.0.0)
+    power-bi (2.1.0)
       faraday (~> 1.0)
 
 GEM
@@ -79,4 +79,4 @@ DEPENDENCIES
   webmock (~> 3.0)
 
 BUNDLED WITH
-   2.1.4
+   2.4.7

@@ -12,9 +12,9 @@ pbi = PowerBI::Tenant.new(->{token = get_token(client, token) ; token.token})
 
 # Supported endpoints
 
-Note: where possible we use _lazy evaluation_: we only call the REST API endpoint when really needed. For examples `pbi.workspaces` won't trigger a call, while `pbi.workspaces.count` will trigger a call.  And `pbi.workspace('123')`, while `pbi.workspace('123').name` will trigger a call.
+Note: where possible we use _lazy evaluation_: we only call the REST API endpoint when really needed. For examples `pbi.workspaces` won't trigger a call, while `pbi.workspaces.count` will trigger a call.  And `pbi.workspace('123')` won't trigger a call, while `pbi.workspace('123').name` will trigger a call.
 
-Note 2: to limit the number of API calls, it is best to directly use the _getters_ iso the index.
+Note 2: to limit the number of API calls, it is best to directly use the _getters_ iso the _lists_.
 
 ## Workspaces (aka Groups)
 
@@ -24,6 +24,8 @@ Note 2: to limit the number of API calls, it is best to directly use the _getter
 * Upload PBIX to workspace: `ws.upload_pbix('./test.pbix', 'new_datasetname_in_the_service')`
 * Delete workspace: `workspace.delete`
 * Add a user to a wokspace: `workspace.add_user('company_0001@fabrikam.com')`
+* Assign a workspace to a capacity: `workspace.assign_to_capacity(capacity)`
+* Unassign a workspace from a capacity: `workspace.unassign_from_capacity`
 
 ## Reports
 
@@ -31,7 +33,7 @@ Note 2: to limit the number of API calls, it is best to directly use the _getter
 * Get report in a workspace: `workspace.report(id)`
 * Clone a report from one workspace to another: `report.clone(src_workspace, new_report_name)`
 * Rebind report to another dataset: `report.rebind(dataset)`
-* Export report to file: `report.export_to_file(filenam, format: 'PDF')`
+* Export report to file: `report.export_to_file(filename, format: 'PDF')`
 
 ## Pages
 
@@ -64,6 +66,13 @@ Note 2: to limit the number of API calls, it is best to directly use the _getter
 * Update credentials of a gateway datasource: `gateway_datasource.update_credentials(new_credentials)`
 * Create a new gateway datasource: `gateway.gateway_datasource.create(name, credentials, db_server, db_name)`
 * Delete a new gateway datasource: `gateway_datasource.delete`
+
+## Capacities
+
+Note: Capacities are Azure creatures, you can't create them in Power BI.
+
+* List capacities: `pbi.capacities`
+* Get a capacity: `pbi.capacity(id)`
 
 # Note about gateway credentials
 

@@ -3,6 +3,7 @@ module PowerBI
     attr_reader :reports, :datasets, :users
 
     class UploadError < PowerBI::Error ; end
+    class CapacityAssignmentError < PowerBI::Error ; end
 
     def initialize(tenant, parent, id = nil)
       super(tenant, id)
@@ -59,6 +60,41 @@ module PowerBI
 
     def dataset(id)
       Dataset.new(@tenant, self, id)
+    end
+
+    def assign_to_capacity(capacity, timeout: 30)
+      _assign_to_capacity(capacity.id, timeout: timeout)
+    end
+
+    def unassign_from_capacity(timeout: 30)
+      _assign_to_capacity('00000000-0000-0000-0000-000000000000', timeout: timeout)
+    end
+
+    private
+
+    def _assign_to_capacity(capacity_id, timeout: 30)
+      @tenant.post("/groups/#{@id}/AssignToCapacity") do |req|
+        req.body = {
+          capacityId: capacity_id,
+        }.to_json
+      end
+
+      success = false
+      iterations = 0
+      status_history = ''
+      old_status = ''
+      while !success
+        sleep 0.5
+        iterations += 1
+        raise CapacityAssignmentError.new("(Un)assignment did not succeed after #{timeout} seconds. Status history:#{status_history}") if iterations > (2 * timeout)
+        new_status = @tenant.get("/groups/#{@id}/CapacityAssignmentStatus")[:status].to_s
+        success = (new_status == "CompletedSuccessfully")
+        if new_status != old_status
+          status_history += "\nStatus change after #{iterations/2}s: '#{old_status}' --> '#{new_status}'"
+          old_status = new_status
+        end
+      end
+      self.reload
     end
 
   end

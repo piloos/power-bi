@@ -1,15 +1,16 @@
 module PowerBI
   class Tenant
-    attr_reader :workspaces, :gateways
+    attr_reader :workspaces, :gateways, :capacities
 
     def initialize(token_generator, retries: 5, logger: nil)
       @token_generator = token_generator
       @workspaces = WorkspaceArray.new(self)
       @gateways = GatewayArray.new(self)
+      @capacities = CapacityArray.new(self)
       @logger = logger
 
       ## WHY RETRIES? ##
-      # It is noticed that once in a while (~0.1% API calls), the Power BI server returns a 500 (internal server error) withou apparent reason, just retrying works :-)
+      # It is noticed that once in a while (~0.1% API calls), the Power BI server returns a 500 (internal server error) without apparent reason, just retrying works :-)
       ##################
       @retry_options = {
         max: retries,
@@ -35,6 +36,10 @@ module PowerBI
 
     def gateway(id)
       Gateway.new(self, nil, id)
+    end
+
+    def capacity(id)
+      Capacity.new(self, nil, id)
     end
 
     def get(url, params = {})
