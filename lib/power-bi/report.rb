@@ -79,6 +79,19 @@ module PowerBI
       File.open(filename, "wb") { |f| f.write(data) }
     end
 
+    def embed_token(access_level: 'View', lifetime_in_minutes: 60)
+      data = @tenant.post("/groups/#{workspace.id}/reports/#{id}/GenerateToken") do |req|
+        req.body = {
+          accessLevel: access_level,
+          lifetimeInMinutes: lifetime_in_minutes
+        }.to_json
+      end
+      {
+        token: data[:token],
+        expiration: Time.parse(data[:expiration])
+      }
+    end
+
   end
 
   class ReportArray < Array
