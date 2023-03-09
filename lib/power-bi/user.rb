@@ -18,7 +18,7 @@ module PowerBI
     end
 
     def delete
-      @tenant.delete("/groups/#{@workspace.id}/users/#{@email_address}")
+      @tenant.delete("/groups/#{@workspace.id}/users/#{email_address}")
       @workspace.users.reload
     end
 
