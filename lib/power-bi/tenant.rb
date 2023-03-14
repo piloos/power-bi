@@ -14,7 +14,7 @@ module PowerBI
       ##################
       @retry_options = {
         max: retries,
-        exceptions: [Errno::ETIMEDOUT, Timeout::Error, Faraday::TimeoutError, Faraday::RetriableResponse],
+        exceptions: [Errno::ETIMEDOUT, Timeout::Error, Faraday::TimeoutError, Faraday::RetriableResponse, Faraday::ConnectionFailed],
         methods: [:get, :post, :patch, :delete],
         retry_statuses: [500], # internal server error
         interval: 0.2,
