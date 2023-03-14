@@ -34,6 +34,7 @@ Note 2: to limit the number of API calls, it is best to directly use the _getter
 * Clone a report from one workspace to another: `report.clone(src_workspace, new_report_name)`
 * Rebind report to another dataset: `report.rebind(dataset)`
 * Export report to file: `report.export_to_file(filename, format: 'PDF')`
+* Get embed token: `report.embed_token(access_level: 'View', lifetime_in_minutes: 60)`
 
 ## Pages
 
