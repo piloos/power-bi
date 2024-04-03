@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    power-bi (2.2.0)
+    power-bi (2.3.0)
       faraday (~> 1.0)
 
 GEM

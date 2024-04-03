@@ -10,6 +10,60 @@ The Power BI API does not handle the authorization part. It requires the user to
 pbi = PowerBI::Tenant.new(->{token = get_token(client, token) ; token.token})
 ```
 
+## Authentication & authorization towards the Power BI API
+
+Currently (april 2024), there are basically 3 ways to authenticate to the Power BI API.
+
+### 1 - Master User
+
+A master user is a classic Microsoft 365 user that you assign a Power BI Pro license.  In order to allow the user to execute actions on the Power BI API you need to create an app registration in Azure AD.  In the associated Enterprise application (gets created when you create the app registration), you need to add the permissions to use the Power BI service.
+
+The resulting authentication looks like this:
+
+```
+TENANT = "53c835d6-6841-4d58-948a-55117409e1d8"
+CLIENT_ID = '6fc64675-bee3-49a7-70d8-b3301a51a88d'
+CLIENT_SECRET = 'sI/@ncYe=eVt7.XfZ7tsPU1aPbxm0V_H'
+USERNAME = 'company_0001@example.com'
+PASSWORD = 'mLXv5A1jrIb8dHopur7y'
+
+client = OAuth2::Client.new(CLIENT_ID, CLIENT_SECRET, site: 'https://login.microsoftonline.com', token_url: "#{TENANT}/oauth2/token")
+
+token = client.password.get_token(USERNAME, PASSWORD, scope: 'openid', resource: 'https://analysis.windows.net/powerbi/api')
+```
+
+Note that in this case the legacy (and slightly unsafe) Resource Owner Password Credentials (ROPC) OAuth flow is used.
+
+### 2 - Service principal
+
+A service principal is a fancy word for a machine user with a secret (eg. id + key) in Azure AD.  You create them by creating an app registration and adding a secret on it.  You need to allow service principals in your Power BI admin settings. But once you allow that, the setup is very easy.  No need to configure anything special in AD.
+
+The resulting authentication looks like this:
+
+```
+TENANT = "53c835d6-6841-4d58-948a-55117409e1d8"
+CLIENT_ID = '6fc64675-bee3-49a7-70d8-b3301a51a88d'
+CLIENT_SECRET = 'sI/@ncYe=eVt7.XfZ7tsPU1aPbxm0V_H'
+
+client = OAuth2::Client.new(CLIENT_ID, CLIENT_SECRET, site: 'https://login.microsoftonline.com', token_url: "#{TENANT}/oauth2/token")
+
+token = client.client_credentials.get_token(resource: 'https://analysis.windows.net/powerbi/api')
+```
+
+Note that in this case the Client Credentials OAuth flow is used.
+
+### 3 - Service principal profiles
+
+Service principal profiles is a Power-BI-only concept.  Towards AD, it looks exactly the same as generic service principal.  Hence the authenication looks exactly as in way 2.
+
+Once authenticated, you can set profiles like this:
+
+```
+pbi.profile = profile
+```
+
+Every action executed after setting the profile, will be executed _through the eyes of the profile_.  This way, you can create an isolated multi-tenant setup.  Using profiles, simplifies the internal organization of Power BI and allows faster interaction with Power BI.  This also lifts the 1000-workspaces limit that is imposed on Master Userss and Service Principals
+
 # Supported endpoints
 
 Note: where possible we use _lazy evaluation_: we only call the REST API endpoint when really needed. For examples `pbi.workspaces` won't trigger a call, while `pbi.workspaces.count` will trigger a call.  And `pbi.workspace('123')` won't trigger a call, while `pbi.workspace('123').name` will trigger a call.
@@ -74,6 +128,13 @@ Note: Capacities are Azure creatures, you can't create them in Power BI.
 
 * List capacities: `pbi.capacities`
 * Get a capacity: `pbi.capacity(id)`
+
+## Profiles
+
+* List profiles: `pbi.profiles`
+* Get a profile: `pbi.profile(id)`
+* Create a profile: `pbi.profiles.create`
+* Delete a profile: `profile.delete`
 
 # Note about gateway credentials
 

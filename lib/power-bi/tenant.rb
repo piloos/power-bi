@@ -1,13 +1,15 @@
 module PowerBI
   class Tenant
-    attr_reader :workspaces, :gateways, :capacities
+    attr_reader :workspaces, :gateways, :capacities, :profiles, :profile
 
     def initialize(token_generator, retries: 5, logger: nil)
       @token_generator = token_generator
       @workspaces = WorkspaceArray.new(self)
       @gateways = GatewayArray.new(self)
       @capacities = CapacityArray.new(self)
+      @profiles = ProfileArray.new(self)
       @logger = logger
+      @profile = nil
 
       ## WHY RETRIES? ##
       # It is noticed that once in a while (~0.1% API calls), the Power BI server returns a 500 (internal server error) without apparent reason, just retrying works :-)
@@ -42,6 +44,11 @@ module PowerBI
       Capacity.new(self, nil, id)
     end
 
+    def profile=(profile)
+      @profile = profile
+      @workspaces.reload # we need to reload the workspaces because we look through the eyes of the profile
+    end
+
     def get(url, params = {})
       t0 = Time.now
       conn = Faraday.new do |f|
@@ -51,6 +58,9 @@ module PowerBI
         req.params = params
         req.headers['Accept'] = 'application/json'
         req.headers['authorization'] = "Bearer #{token}"
+        if @profile
+          req.headers['X-PowerBI-Profile-Id'] = @profile.id
+        end
         yield req if block_given?
       end
       if response.status == 400
@@ -73,6 +83,9 @@ module PowerBI
       response = conn.get(PowerBI::BASE_URL + url) do |req|
         req.params = params
         req.headers['authorization'] = "Bearer #{token}"
+        if @profile
+          req.headers['X-PowerBI-Profile-Id'] = @profile.id
+        end
         yield req if block_given?
       end
       log "Calling (GET - raw) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
@@ -92,6 +105,9 @@ module PowerBI
         req.headers['Accept'] = 'application/json'
         req.headers['Content-Type'] = 'application/json'
         req.headers['authorization'] = "Bearer #{token}"
+        if @profile
+          req.headers['X-PowerBI-Profile-Id'] = @profile.id
+        end
         yield req if block_given?
       end
       log "Calling (POST) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
@@ -113,6 +129,9 @@ module PowerBI
         req.headers['Accept'] = 'application/json'
         req.headers['Content-Type'] = 'application/json'
         req.headers['authorization'] = "Bearer #{token}"
+        if @profile
+          req.headers['X-PowerBI-Profile-Id'] = @profile.id
+        end
         yield req if block_given?
       end
       log "Calling (PATCH) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
@@ -133,6 +152,9 @@ module PowerBI
         req.params = params
         req.headers['Accept'] = 'application/json'
         req.headers['authorization'] = "Bearer #{token}"
+        if @profile
+          req.headers['X-PowerBI-Profile-Id'] = @profile.id
+        end
         yield req if block_given?
       end
       log "Calling (DELETE) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
@@ -158,6 +180,9 @@ module PowerBI
         req.headers['Accept'] = 'application/json'
         req.headers['Content-Type'] = 'multipart/form-data'
         req.headers['authorization'] = "Bearer #{token}"
+        if @profile
+          req.headers['X-PowerBI-Profile-Id'] = @profile.id
+        end
         req.body = {value: Faraday::UploadIO.new(file, 'application/octet-stream')}
         req.options.timeout = 120  # default is 60 seconds Net::ReadTimeout
       end
