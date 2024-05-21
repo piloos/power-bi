@@ -1,6 +1,6 @@
 module PowerBI
   class Tenant
-    attr_reader :workspaces, :gateways, :capacities, :profiles, :profile
+    attr_reader :workspaces, :gateways, :capacities, :profiles, :profile_id
 
     def initialize(token_generator, retries: 5, logger: nil)
       @token_generator = token_generator
@@ -9,7 +9,7 @@ module PowerBI
       @capacities = CapacityArray.new(self)
       @profiles = ProfileArray.new(self)
       @logger = logger
-      @profile = nil
+      @profile_id = nil
 
       ## WHY RETRIES? ##
       # It is noticed that once in a while (~0.1% API calls), the Power BI server returns a 500 (internal server error) without apparent reason, just retrying works :-)
@@ -44,12 +44,16 @@ module PowerBI
       Capacity.new(self, nil, id)
     end
 
+    def profile(id)
+      Profile.new(self, nil, id)
+    end
+
     def profile=(profile)
-      @profile = profile
+      @profile_id = profile.is_a?(String) ? profile : profile&.id
       @workspaces.reload # we need to reload the workspaces because we look through the eyes of the profile
     end
 
-    def get(url, params = {})
+    def get(url, params = {}, use_profile: true)
       t0 = Time.now
       conn = Faraday.new do |f|
         f.request :retry, @retry_options
@@ -58,8 +62,8 @@ module PowerBI
         req.params = params
         req.headers['Accept'] = 'application/json'
         req.headers['authorization'] = "Bearer #{token}"
-        if @profile
-          req.headers['X-PowerBI-Profile-Id'] = @profile.id
+        if use_profile
+          add_spp_header(req)
         end
         yield req if block_given?
       end
@@ -75,7 +79,7 @@ module PowerBI
       end
     end
 
-    def get_raw(url, params = {})
+    def get_raw(url, params = {}, use_profile: true)
       t0 = Time.now
       conn = Faraday.new do |f|
         f.request :retry, @retry_options
@@ -83,8 +87,8 @@ module PowerBI
       response = conn.get(PowerBI::BASE_URL + url) do |req|
         req.params = params
         req.headers['authorization'] = "Bearer #{token}"
-        if @profile
-          req.headers['X-PowerBI-Profile-Id'] = @profile.id
+        if use_profile
+          add_spp_header(req)
         end
         yield req if block_given?
       end
@@ -95,7 +99,7 @@ module PowerBI
       response.body
     end
 
-    def post(url, params = {})
+    def post(url, params = {}, use_profile: true)
       t0 = Time.now
       conn = Faraday.new do |f|
         f.request :retry, @retry_options
@@ -105,8 +109,8 @@ module PowerBI
         req.headers['Accept'] = 'application/json'
         req.headers['Content-Type'] = 'application/json'
         req.headers['authorization'] = "Bearer #{token}"
-        if @profile
-          req.headers['X-PowerBI-Profile-Id'] = @profile.id
+        if use_profile
+          add_spp_header(req)
         end
         yield req if block_given?
       end
@@ -119,7 +123,7 @@ module PowerBI
       end
     end
 
-    def patch(url, params = {})
+    def patch(url, params = {}, use_profile: true)
       t0 = Time.now
       conn = Faraday.new do |f|
         f.request :retry, @retry_options
@@ -129,8 +133,8 @@ module PowerBI
         req.headers['Accept'] = 'application/json'
         req.headers['Content-Type'] = 'application/json'
         req.headers['authorization'] = "Bearer #{token}"
-        if @profile
-          req.headers['X-PowerBI-Profile-Id'] = @profile.id
+        if use_profile
+          add_spp_header(req)
         end
         yield req if block_given?
       end
@@ -143,7 +147,7 @@ module PowerBI
       end
     end
 
-    def delete(url, params = {})
+    def delete(url, params = {}, use_profile: true)
       t0 = Time.now
       conn = Faraday.new do |f|
         f.request :retry, @retry_options
@@ -152,8 +156,8 @@ module PowerBI
         req.params = params
         req.headers['Accept'] = 'application/json'
         req.headers['authorization'] = "Bearer #{token}"
-        if @profile
-          req.headers['X-PowerBI-Profile-Id'] = @profile.id
+        if use_profile
+          add_spp_header(req)
         end
         yield req if block_given?
       end
@@ -169,7 +173,7 @@ module PowerBI
       end
     end
 
-    def post_file(url, file, params = {})
+    def post_file(url, file, params = {}, use_profile: true)
       t0 = Time.now
       conn = Faraday.new do |f|
         f.request :multipart
@@ -180,8 +184,8 @@ module PowerBI
         req.headers['Accept'] = 'application/json'
         req.headers['Content-Type'] = 'multipart/form-data'
         req.headers['authorization'] = "Bearer #{token}"
-        if @profile
-          req.headers['X-PowerBI-Profile-Id'] = @profile.id
+        if use_profile
+          add_spp_header(req)
         end
         req.body = {value: Faraday::UploadIO.new(file, 'application/octet-stream')}
         req.options.timeout = 120  # default is 60 seconds Net::ReadTimeout
@@ -194,6 +198,12 @@ module PowerBI
     end
 
     private
+
+    def add_spp_header(req)
+      if @profile_id
+        req.headers['X-PowerBI-Profile-Id'] = @profile_id
+      end
+    end
 
     def token
       @token_generator.call

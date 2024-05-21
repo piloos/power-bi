@@ -1,14 +1,15 @@
 module PowerBI
   class GatewayDatasource < Object
-    attr_reader :gateway
+    attr_reader :gateway, :gateway_datasource_users
 
     def initialize(tenant, parent, id = nil)
       super(tenant, id)
       @gateway = parent
+      @gateway_datasource_users = GatewayDatasourceUserArray.new(@tenant, self)
     end
 
     def get_data(id)
-      @tenant.get("/gateways/#{@gateway.id}/datasources/#{id}")
+      @tenant.get("/gateways/#{@gateway.id}/datasources/#{id}", use_profile: false)
     end
 
     def data_to_attributes(data)
@@ -24,7 +25,7 @@ module PowerBI
     end
 
     def update_credentials(encrypted_credentials)
-      @tenant.patch("/gateways/#{gateway.id}/datasources/#{id}") do |req|
+      @tenant.patch("/gateways/#{gateway.id}/datasources/#{id}", use_profile: false) do |req|
         req.body = {
           credentialDetails: {
             credentialType: "Basic",
@@ -41,7 +42,7 @@ module PowerBI
     end
 
     def delete
-      @tenant.delete("/gateways/#{gateway.id}/datasources/#{id}")
+      @tenant.delete("/gateways/#{gateway.id}/datasources/#{id}", use_profile: false)
       @gateway.gateway_datasources.reload
       true
     end
@@ -61,7 +62,7 @@ module PowerBI
 
     # only MySQL type is currently supported
     def create(name, encrypted_credentials, db_server, db_name)
-      data = @tenant.post("/gateways/#{@gateway.id}/datasources",) do |req|
+      data = @tenant.post("/gateways/#{@gateway.id}/datasources", use_profile: false) do |req|
         req.body = {
           connectionDetails: {server: db_server, database: db_name}.to_json,
           credentialDetails: {
@@ -82,7 +83,7 @@ module PowerBI
     end
 
     def get_data
-      @tenant.get("/gateways/#{@gateway.id}/datasources")[:value]
+      @tenant.get("/gateways/#{@gateway.id}/datasources", use_profile: false)[:value]
     end
   end
 end

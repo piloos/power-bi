@@ -8,7 +8,7 @@ module PowerBI
     end
 
     def get_data(id)
-      @tenant.get("/gateways/#{id}")
+      @tenant.get("/gateways/#{id}", use_profile: false)
     end
 
     def data_to_attributes(data)
@@ -32,7 +32,7 @@ module PowerBI
     end
 
     def get_data
-      @tenant.get("/gateways")[:value]
+      @tenant.get("/gateways", use_profile: false)[:value]
     end
   end
 end

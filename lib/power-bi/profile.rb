@@ -6,7 +6,7 @@ module PowerBI
     end
 
     def get_data(id)
-      @tenant.get("/profiles/#{id}")
+      @tenant.get("/profiles/#{id}", use_profile: false)
     end
 
     def data_to_attributes(data)
@@ -17,7 +17,7 @@ module PowerBI
     end
 
     def delete
-      @tenant.delete("/profiles/#{@id}")
+      @tenant.delete("/profiles/#{@id}", use_profile: false)
       @tenant.profiles.reload
       true
     end
@@ -30,7 +30,7 @@ module PowerBI
     end
 
     def create(name)
-      data = @tenant.post("/profiles") do |req|
+      data = @tenant.post("/profiles", use_profile: false) do |req|
         req.body = {displayName: name}.to_json
       end
       self.reload
@@ -38,7 +38,7 @@ module PowerBI
     end
 
     def get_data
-      @tenant.get("/profiles")[:value]
+      @tenant.get("/profiles", use_profile: false)[:value]
     end
   end
 end

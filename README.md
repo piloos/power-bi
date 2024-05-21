@@ -62,7 +62,9 @@ Once authenticated, you can set profiles like this:
 pbi.profile = profile
 ```
 
-Every action executed after setting the profile, will be executed _through the eyes of the profile_.  This way, you can create an isolated multi-tenant setup.  Using profiles, simplifies the internal organization of Power BI and allows faster interaction with Power BI.  This also lifts the 1000-workspaces limit that is imposed on Master Userss and Service Principals
+Every action executed after setting the profile, will be executed _through the eyes of the profile_.  This way, you can create an isolated multi-tenant setup.  Using profiles, simplifies the internal organization of Power BI and allows faster interaction with Power BI.  This also lifts the 1000-workspaces limit that is imposed on Master Users and Service Principals
+
+Note: when working with Service principal profiles (SPP), you need to add the SPP to the gateway datasource before binding the gateway datasource to the dataset.
 
 # Supported endpoints
 
@@ -121,6 +123,11 @@ Note 2: to limit the number of API calls, it is best to directly use the _getter
 * Update credentials of a gateway datasource: `gateway_datasource.update_credentials(new_credentials)`
 * Create a new gateway datasource: `gateway.gateway_datasource.create(name, credentials, db_server, db_name)`
 * Delete a new gateway datasource: `gateway_datasource.delete`
+
+## Gateway datasource users
+
+* List datasource users in a gateway datasource: `gateway_datasource.gateway_datasource_users`
+* Add a Service principal profile to a gateway datasource: `gateway_datasource.add_service_principal_profile_user(profile_id, principal_object_id)`
 
 ## Capacities
 
