@@ -1,6 +1,6 @@
 module PowerBI
   class Dataset < Object
-    attr_reader :workspace, :datasources, :parameters, :refresh_history
+    attr_reader :workspace, :datasources, :parameters
 
     def initialize(tenant, parent, id = nil)
       super(tenant, id)
@@ -36,6 +36,11 @@ module PowerBI
       end
       @parameters.reload
       true
+    end
+
+    def refresh_history(entries_to_load = 1)
+      @refresh_history.entries_to_load = entries_to_load
+      @refresh_history
     end
 
     def last_refresh
