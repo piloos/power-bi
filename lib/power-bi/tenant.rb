@@ -1,6 +1,6 @@
 module PowerBI
   class Tenant
-    attr_reader :workspaces, :gateways, :capacities, :profiles, :profile_id
+    attr_reader :workspaces, :gateways, :capacities, :profiles, :profile_id, :admin
 
     def initialize(token_generator, retries: 5, logger: nil)
       @token_generator = token_generator
@@ -10,6 +10,7 @@ module PowerBI
       @profiles = ProfileArray.new(self)
       @logger = logger
       @profile_id = nil
+      @admin = Admin.new(self)
 
       ## WHY RETRIES? ##
       # It is noticed that once in a while (~0.1% API calls), the Power BI server returns a 500 (internal server error) without apparent reason, just retrying works :-)
