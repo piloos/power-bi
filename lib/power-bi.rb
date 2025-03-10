@@ -1,4 +1,3 @@
-require 'pry' # TODO remove in final product
 require 'faraday'
 require 'json'
 require 'date'
