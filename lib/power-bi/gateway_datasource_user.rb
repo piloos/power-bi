@@ -18,6 +18,14 @@ module PowerBI
       }
     end
 
+    # currently only implemented for users or service principals (not yet service principal profiles)
+    def delete
+      email_address_or_object_id = email_address || identifier
+      @tenant.delete("/gateways/#{@gateway_datasource.gateway.id}/datasources/#{@gateway_datasource.id}/users/#{email_address_or_object_id}", use_profile: false)
+      @gateway_datasource.gateway_datasource_users.reload
+      true
+    end
+
   end
 
   class GatewayDatasourceUserArray < Array

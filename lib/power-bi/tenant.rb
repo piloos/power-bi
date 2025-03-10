@@ -74,7 +74,7 @@ module PowerBI
       unless [200, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
-      log "Calling (GET) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
+      log "Calling (GET) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms - status: #{response.status}"
       unless response.body.empty?
         JSON.parse(response.body, symbolize_names: true)
       end
@@ -93,7 +93,7 @@ module PowerBI
         end
         yield req if block_given?
       end
-      log "Calling (GET - raw) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
+      log "Calling (GET - raw) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms - status: #{response.status}"
       unless [200, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
@@ -115,7 +115,7 @@ module PowerBI
         end
         yield req if block_given?
       end
-      log "Calling (POST) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
+      log "Calling (POST) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms - status: #{response.status}"
       unless [200, 201, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
@@ -139,7 +139,7 @@ module PowerBI
         end
         yield req if block_given?
       end
-      log "Calling (PATCH) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
+      log "Calling (PATCH) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms - status: #{response.status}"
       unless [200, 202].include? response.status
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end
@@ -162,7 +162,7 @@ module PowerBI
         end
         yield req if block_given?
       end
-      log "Calling (DELETE) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
+      log "Calling (DELETE) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms - status: #{response.status}"
       if [400, 401, 404].include? response.status
         raise NotFoundError
       end
@@ -191,7 +191,7 @@ module PowerBI
         req.body = {value: Faraday::UploadIO.new(file, 'application/octet-stream')}
         req.options.timeout = 120  # default is 60 seconds Net::ReadTimeout
       end
-      log "Calling (POST - file) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms"
+      log "Calling (POST - file) #{response.env.url.to_s} - took #{((Time.now - t0) * 1000).to_i} ms - status: #{response.status}"
       if response.status != 202
         raise APIError.new("Error calling Power BI API (status #{response.status}): #{response.body}")
       end

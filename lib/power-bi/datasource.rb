@@ -16,6 +16,24 @@ module PowerBI
       }
     end
 
+    # only MySQL type is currently supported
+    def update_credentials(username, password)
+      @tenant.patch("/gateways/#{gateway_id}/datasources/#{datasource_id}") do |req|
+        req.body = {
+          credentialDetails: {
+            credentialType: "Basic",
+            credentials: "{\"credentialData\":[{\"name\":\"username\", \"value\":\"#{username}\"},{\"name\":\"password\", \"value\":\"#{password}\"}]}",
+            encryptedConnection: "Encrypted",
+            encryptionAlgorithm: "None",
+            privacyLevel: "None",
+            useCallerAADIdentity: false,
+            useEndUserOAuth2Credentials: false,
+          },
+        }.to_json
+      end
+      true
+    end
+
   end
 
   class DatasourceArray < Array
