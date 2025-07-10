@@ -112,6 +112,10 @@ Note 2: to limit the number of API calls, it is best to directly use the _getter
 * Delete the dataset: `dataset.delete`
 * Bind dataset to a gateway datasource: `dataset.bind_to_gateway(gateway, gateway_datasource)`
 
+## Datasources
+
+* Update credentials of a datasource: `datasource.update_credentials(username, password)`
+
 ## Gateways
 
 * List gateways: `pbi.gateways`
