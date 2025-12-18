@@ -87,7 +87,7 @@ module PowerBI
     end
 
     def get_data
-      @tenant.get("/groups/#{@workspace.id}/datasets")[:value]
+      @tenant.get_paginated("/groups/#{@workspace.id}/datasets")
     end
   end
 end

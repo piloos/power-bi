@@ -38,7 +38,7 @@ module PowerBI
     end
 
     def get_data
-      @tenant.get("/profiles", use_profile: false)[:value]
+      @tenant.get_paginated("/profiles", use_profile: false)
     end
   end
 end

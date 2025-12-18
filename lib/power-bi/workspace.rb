@@ -113,7 +113,7 @@ module PowerBI
     end
 
     def get_data
-      @tenant.get("/groups")[:value]
+      @tenant.get_paginated("/groups")
     end
   end
 end
