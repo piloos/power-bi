@@ -61,7 +61,7 @@ module PowerBI
       end
     end
 
-    describe "deduplication (handles deletions between requests)" do
+    describe "deduplication (handles insertions between requests)" do
       before do
         # First page: includes profile "id-5000"
         first_page = (0...5000).map { |i| { id: "id-#{i}", displayName: "Profile #{i}" } }
@@ -135,7 +135,7 @@ module PowerBI
     describe "maximum iteration limit" do
       before do
         # Stub 15 pages (each with exactly 5000 records)
-        # MAX_ITERATIONS is now 10, so should stop after 10 iterations
+        # We pass max_iterations: 10, so should stop after 10 iterations
         15.times do |page|
           page_data = (page * 5000...(page + 1) * 5000).map do |i|
             { id: "id-#{i}", displayName: "Profile #{i}" }
@@ -148,15 +148,15 @@ module PowerBI
       end
 
       it "should stop at max iterations" do
-        profiles = @tenant.profiles
-        # With MAX_ITERATIONS = 10, should get 10 * 5000 = 50,000 profiles
-        assert_equal 50_000, profiles.count
+        data = @tenant.get_paginated("/profiles", use_profile: false, max_iterations: 10)
+        # With max_iterations: 10, should get 10 * 5000 = 50,000 records
+        assert_equal 50_000, data.count
       end
 
       it "should log warning when limit reached" do
         # Note: This test verifies the behavior, logging verification would need a logger mock
-        profiles = @tenant.profiles
-        assert_equal 50_000, profiles.count
+        data = @tenant.get_paginated("/profiles", use_profile: false, max_iterations: 10)
+        assert_equal 50_000, data.count
       end
     end
 

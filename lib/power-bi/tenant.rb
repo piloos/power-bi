@@ -205,9 +205,13 @@ module PowerBI
     # 1. Requesting 5000 records at a time using $top and $skip
     # 2. If exactly 5000 records are returned, fetching the next page
     # 3. Accumulating all results across pages
-    # 4. Deduplicating records by ID (to handle deletions between requests)
+    # 4. Deduplicating records by ID (to handle insertions between requests)
+    #
+    # Note: $skip-based pagination is not fully protected against deletions
+    # between requests (a deleted record may cause a subsequent record to go
+    # unseen). This risk is acceptable given the short pagination window.
     MAX_PAGE_SIZE = 5000
-    MAX_ITERATIONS = 10
+    MAX_ITERATIONS = 100
     def get_paginated(url, page_size: MAX_PAGE_SIZE, base_params: {}, use_profile: true, max_iterations: MAX_ITERATIONS)
       page_size = [page_size, MAX_PAGE_SIZE].min
 
@@ -245,8 +249,9 @@ module PowerBI
         skip += batch_count
       end
 
-      # Deduplicate by ID to handle any records that were deleted between requests
-      # This ensures we don't have duplicate records if the data shifted during pagination
+      # Deduplicate by ID to handle any records that were inserted between requests.
+      # Insertions before the current $skip position shift items right, which can
+      # cause duplicates across pages.
       deduplicated_data = all_data.uniq{|r| r[:id]}
 
       if deduplicated_data.size < all_data.size
