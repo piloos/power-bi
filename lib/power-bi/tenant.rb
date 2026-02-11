@@ -198,6 +198,69 @@ module PowerBI
       JSON.parse(response.body, symbolize_names: true)
     end
 
+    # Fetches paginated data from the Power BI API using OData-style pagination.
+    #
+    # Power BI API has a documented limit of 5000 records per request.
+    # This method handles pagination automatically by:
+    # 1. Requesting 5000 records at a time using $top and $skip
+    # 2. If exactly 5000 records are returned, fetching the next page
+    # 3. Accumulating all results across pages
+    # 4. Deduplicating records by ID (to handle insertions between requests)
+    #
+    # Note: $skip-based pagination is not fully protected against deletions
+    # between requests (a deleted record may cause a subsequent record to go
+    # unseen). This risk is acceptable given the short pagination window.
+    MAX_PAGE_SIZE = 5000
+    MAX_ITERATIONS = 100
+    def get_paginated(url, page_size: MAX_PAGE_SIZE, base_params: {}, use_profile: true, max_iterations: MAX_ITERATIONS)
+      page_size = [page_size, MAX_PAGE_SIZE].min
+
+      skip = 0
+      all_data = []
+      iteration = 0
+
+      loop do
+        iteration += 1
+        if iteration > max_iterations
+          log "WARNING: Reached maximum iteration limit (#{max_iterations}). " \
+              "Fetched #{all_data.size} records so far. This may indicate an API issue or " \
+              "an extremely large dataset. Consider using API filters to reduce the result set.",
+              level: :warn
+          break
+        end
+
+        params = base_params.merge({
+          '$top' => page_size,
+          '$skip' => skip
+        })
+
+        log "Fetching paginated data from #{url} (skip: #{skip}, top: #{page_size}, iteration: #{iteration})"
+
+        resp = get(url, params, use_profile: use_profile)
+        batch = resp[:value] || []
+        all_data += batch
+        batch_count = batch.size
+
+        log "Received #{batch_count} records (total so far: #{all_data.size})"
+
+        # If we got fewer records than requested, we've reached the last page
+        break if batch_count < page_size
+
+        skip += batch_count
+      end
+
+      # Deduplicate by ID to handle any records that were inserted between requests.
+      # Insertions before the current $skip position shift items right, which can
+      # cause duplicates across pages.
+      deduplicated_data = all_data.uniq{|r| r[:id]}
+
+      if deduplicated_data.size < all_data.size
+        log "Removed #{all_data.size - deduplicated_data.size} duplicate records during deduplication"
+      end
+
+      deduplicated_data
+    end
+
     private
 
     def add_spp_header(req)

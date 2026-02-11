@@ -30,28 +30,11 @@ module PowerBI
     end
 
     def get_workspaces(filter: nil, expand: nil)
-      params = {}
-      params[:$filter] = filter if filter
-      params[:$expand] = expand if expand
+      base_params = {}
+      base_params[:$filter] = filter if filter
+      base_params[:$expand] = expand if expand
 
-      url = '/admin/groups'
-
-      nr_records = 5000
-      count = 0
-
-      data = []
-
-      loop do
-        params[:$top] = nr_records
-        params[:$skip] = count
-        resp = @tenant.get(url, params)
-        data += resp[:value]
-        batch_count = resp[:value].size
-        count += batch_count
-        break if batch_count < nr_records
-      end
-
-      data
+      @tenant.get_paginated('/admin/groups', base_params: base_params)
     end
 
     def force_delete_workspace_by_workspace_name(user_email, workspace_name)
