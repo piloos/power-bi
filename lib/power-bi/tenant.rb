@@ -23,7 +23,7 @@ module PowerBI
         interval: 0.2,
         interval_randomness: 0,
         backoff_factor: 4,
-        retry_block: -> (env, options, retries, exc) { self.log "retrying...!! exception: #{exc.to_s} ---- #{exc.message}, request URL: #{env.url}" },
+        retry_block: -> (env:, options:, retry_count:, exception:, will_retry_in:) { self.log "retrying...!! exception: #{exception} ---- #{exception.message}, request URL: #{env.url}" },
       }
     end
 

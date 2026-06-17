@@ -1,4 +1,6 @@
 require 'faraday'
+require 'faraday/multipart'
+require 'faraday/retry'
 require 'json'
 require 'date'
 
